@@ -4,7 +4,6 @@ import dynamic from "next/dynamic";
 import { useMemo, useState, useEffect } from "react";
 import type { Config, Data, Layout } from "plotly.js";
 import { FullScreenCard } from "@/components/ui/FullScreenCard";
-import { generateHousingData } from "@/lib/housing";
 import { ViewModeButtons } from "./shared/ViewModeButtons";
 import { ParameterSlider } from "./shared/ParameterSlider";
 
@@ -17,41 +16,55 @@ const Plot = dynamic(() => import("react-plotly.js"), {
   ),
 });
 
-function formatNumber(num: number): string {
-  return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+// Seeded random number generator for consistent results
+function createRng(seed: number) {
+  let state = seed % 2147483647;
+  if (state <= 0) state += 2147483646;
+  return () => {
+    state = (state * 16807) % 2147483647;
+    return (state - 1) / 2147483646;
+  };
 }
 
-type PreviewPoint = {
-  squareFeet: number;
-  price: number;
+type DataPoint = {
+  x: number;
+  y: number;
 };
 
-function buildPreviewPoints(count: number, seed: number): PreviewPoint[] {
-  return generateHousingData({ samples: count, seed }).map((sample) => ({
-    squareFeet: Math.round(sample.squareFeet),
-    price: Math.round(sample.price),
-  }));
+// Generate clean mathematical data: y = 3x + 5 + noise
+function generateCleanData(count: number, seed: number): DataPoint[] {
+  const rng = createRng(seed);
+  const points: DataPoint[] = [];
+
+  for (let i = 0; i < count; i++) {
+    const x = (i / count) * 10; // x ranges from 0 to 10
+    const noise = (rng() - 0.5) * 6; // noise in range [-3, 3] - increased for more variation
+    const y = 3 * x + 5 + noise; // true relationship: y = 3x + 5
+    points.push({ x: Number(x.toFixed(2)), y: Number(y.toFixed(2)) });
+  }
+
+  return points;
 }
 
-const SAMPLE_SIZE = 160;
+const SAMPLE_SIZE = 80;
 
 export function LinearRegressionExplorer() {
-  const [viewMode, setViewMode] = useState<"data" | "model" | "predictions">("model");
+  const [viewMode, setViewMode] = useState<"data" | "model" | "predictions">("data");
   const [mounted, setMounted] = useState(false);
-  const previewPoints = useMemo(() => buildPreviewPoints(SAMPLE_SIZE, 77), []);
+  const dataPoints = useMemo(() => generateCleanData(SAMPLE_SIZE, 42), []);
 
-  // Calculate optimal w and b
+  // Calculate optimal w and b using least squares
   const optimal = useMemo(() => {
-    const xs = previewPoints.map((p) => p.squareFeet);
-    const ys = previewPoints.map((p) => p.price);
+    const xs = dataPoints.map((p) => p.x);
+    const ys = dataPoints.map((p) => p.y);
     const xMean = xs.reduce((acc, v) => acc + v, 0) / xs.length;
     const yMean = ys.reduce((acc, v) => acc + v, 0) / ys.length;
     const numerator = xs.reduce((acc, v, i) => acc + (v - xMean) * (ys[i] - yMean), 0);
     const denominator = xs.reduce((acc, v) => acc + (v - xMean) ** 2, 0) || 1;
     const w = numerator / denominator;
     const b = yMean - w * xMean;
-    return { w: Math.round(w * 10) / 10, b: Math.round(b) };
-  }, [previewPoints]);
+    return { w: Number(w.toFixed(2)), b: Number(b.toFixed(2)) };
+  }, [dataPoints]);
 
   // User-adjustable parameters
   const [w, setW] = useState(optimal.w);
@@ -63,33 +76,33 @@ export function LinearRegressionExplorer() {
 
   // Calculate MSE cost
   const cost = useMemo(() => {
-    const predictions = previewPoints.map((p) => w * p.squareFeet + b);
-    const errors = previewPoints.map((p, i) => Math.pow(predictions[i] - p.price, 2));
-    const mse = errors.reduce((acc, e) => acc + e, 0) / previewPoints.length;
-    return Math.round(mse);
-  }, [w, b, previewPoints]);
+    const predictions = dataPoints.map((p) => w * p.x + b);
+    const errors = dataPoints.map((p, i) => Math.pow(predictions[i] - p.y, 2));
+    const mse = errors.reduce((acc, e) => acc + e, 0) / dataPoints.length;
+    return Number(mse.toFixed(3));
+  }, [w, b, dataPoints]);
 
   // Regression line points
   const regressionLine = useMemo(() => {
-    const xs = previewPoints.map((p) => p.squareFeet);
+    const xs = dataPoints.map((p) => p.x);
     const xMin = Math.min(...xs);
     const xMax = Math.max(...xs);
     return {
       x: [xMin, xMax],
       y: [w * xMin + b, w * xMax + b],
     };
-  }, [w, b, previewPoints]);
+  }, [w, b, dataPoints]);
 
   const scatterTrace: Partial<Data> = useMemo(
     () => ({
       type: "scatter",
       mode: "markers",
-      x: previewPoints.map((p) => p.squareFeet),
-      y: previewPoints.map((p) => p.price),
-      text: previewPoints.map((p) => `$${formatNumber(p.price)} @ ${p.squareFeet} sq ft`),
+      x: dataPoints.map((p) => p.x),
+      y: dataPoints.map((p) => p.y),
+      text: dataPoints.map((p) => `x=${p.x.toFixed(2)}, y=${p.y.toFixed(2)}`),
       marker: {
         size: 7,
-        color: previewPoints.map((p) => p.price),
+        color: dataPoints.map((p) => p.y),
         colorscale: [
           [0, "#23e6ff"],
           [0.5, "#3f5efb"],
@@ -100,9 +113,9 @@ export function LinearRegressionExplorer() {
         line: { width: 1, color: "rgba(12,18,26,0.65)" },
       },
       hovertemplate: "%{text}<extra></extra>",
-      name: "Samples",
+      name: "Data Points",
     }),
-    [previewPoints],
+    [dataPoints],
   );
 
   const modelTrace: Partial<Data> = useMemo(
@@ -125,10 +138,10 @@ export function LinearRegressionExplorer() {
     () => ({
       type: "scatter",
       mode: "markers",
-      x: previewPoints.map((p) => p.squareFeet),
-      y: previewPoints.map((p) => w * p.squareFeet + b),
-      text: previewPoints.map(
-        (p) => `Predicted: $${formatNumber(Math.round(w * p.squareFeet + b))}<br>Actual: $${formatNumber(p.price)}`,
+      x: dataPoints.map((p) => p.x),
+      y: dataPoints.map((p) => w * p.x + b),
+      text: dataPoints.map(
+        (p) => `Predicted: ${(w * p.x + b).toFixed(2)}<br>Actual: ${p.y.toFixed(2)}`,
       ),
       marker: {
         size: 7,
@@ -139,7 +152,7 @@ export function LinearRegressionExplorer() {
       hovertemplate: "%{text}<extra></extra>",
       name: "Predictions",
     }),
-    [w, b, previewPoints],
+    [w, b, dataPoints],
   );
 
   const layout: Partial<Layout> = useMemo(
@@ -154,17 +167,14 @@ export function LinearRegressionExplorer() {
         color: "rgba(245,247,250,0.88)",
       },
       xaxis: {
-        title: "Square Feet",
+        title: "x",
         zeroline: false,
         gridcolor: "rgba(255,255,255,0.08)",
-        tickformat: ",d",
       },
       yaxis: {
-        title: "Price (USD)",
+        title: "y",
         zeroline: false,
         gridcolor: "rgba(255,255,255,0.08)",
-        tickprefix: "$",
-        tickformat: ",",
       },
       hovermode: "closest",
       showlegend: false,
@@ -218,19 +228,19 @@ export function LinearRegressionExplorer() {
               label="Weight (w)"
               value={w}
               min={0}
-              max={300}
-              step={5}
+              max={6}
+              step={0.1}
               onChange={setW}
               formula="f(x) = wx + b"
             />
-            <ParameterSlider label="Bias (b)" value={b} min={-50000} max={50000} step={1000} onChange={setB} />
+            <ParameterSlider label="Bias (b)" value={b} min={0} max={10} step={0.1} onChange={setB} />
           </div>
 
           <div className="flex items-center justify-between bg-[rgba(35,230,255,0.08)] border border-[rgba(35,230,255,0.2)] rounded-lg p-4">
             <div>
               <span className="text-sm text-[color:var(--color-text-secondary)]">Cost (MSE):</span>
               <span className="ml-2 text-lg font-mono text-[color:var(--color-accent)]">
-                ${mounted ? formatNumber(cost) : cost}
+                {cost.toFixed(3)}
               </span>
             </div>
             <button
@@ -246,8 +256,8 @@ export function LinearRegressionExplorer() {
 
       <div className="mt-6 bg-[rgba(255,200,87,0.08)] border border-[rgba(255,200,87,0.3)] rounded-lg p-4">
         <p className="text-sm text-[color:var(--color-text-secondary)]">
-          💡 Different w and b values create different prediction lines. Adjust the sliders to find values that
-          minimize the cost!
+          <strong className="text-[color:var(--color-text-primary)]">True relationship: y = 3x + 5</strong> (with noise).
+          Adjust w and b to fit the line and minimize cost. Optimal values: w ≈ 3, b ≈ 5.
         </p>
       </div>
     </FullScreenCard>

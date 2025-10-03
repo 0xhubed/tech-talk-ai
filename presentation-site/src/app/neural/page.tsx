@@ -1,11 +1,13 @@
 import { ChapterLayout } from "@/components/layout/ChapterLayout";
 import { DiscoveryDemoSection } from "@/components/neural/DiscoveryDemoSection";
+import { LinearRegressionIntro } from "@/components/neural/LinearRegressionIntro";
 import { LinearRegressionExplorer } from "@/components/neural/LinearRegressionExplorer";
 import { CostFunctionVisualization } from "@/components/neural/CostFunctionVisualization";
 import { GradientDescentExplorer } from "@/components/neural/GradientDescentExplorer";
 import { TrainingPipelineDemo } from "@/components/neural/TrainingPipelineDemo";
 import { LinearVsNeuralComparison } from "@/components/neural/LinearVsNeuralComparison";
 import { TransformersPreview } from "@/components/neural/TransformersPreview";
+import { ArchitectureRoadmap } from "@/components/neural/ArchitectureRoadmap";
 import { NotebookLauncher } from "@/components/neural/NotebookLauncher";
 import { getChapterDefinition } from "@/lib/sections";
 
@@ -16,6 +18,9 @@ export default function NeuralPage() {
     <ChapterLayout chapter={chapter}>
       {/* Opening: Discovery Demo */}
       <DiscoveryDemoSection />
+
+      {/* Introduction: What is Linear Regression */}
+      <LinearRegressionIntro />
 
       {/* Core Concept 1: Model Representation */}
       <section id="model-representation" className="section-boundary">
@@ -146,6 +151,9 @@ export default function NeuralPage() {
 
       {/* Transformers Preview */}
       <TransformersPreview />
+
+      {/* Architecture Roadmap */}
+      <ArchitectureRoadmap />
 
       {/* Closing Notes */}
       <section id="neural-notes" className="section-boundary">

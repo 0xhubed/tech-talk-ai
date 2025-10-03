@@ -18,29 +18,40 @@ function formatNumber(num: number): string {
   return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
+// Seeded random number generator for consistent results
+function createRng(seed: number) {
+  let state = seed % 2147483647;
+  if (state <= 0) state += 2147483646;
+  return () => {
+    state = (state * 16807) % 2147483647;
+    return (state - 1) / 2147483646;
+  };
+}
+
 type DatasetType = "linear" | "quadratic" | "sigmoid" | "sine";
 
 export function LinearVsNeuralComparison() {
   const [datasetType, setDatasetType] = useState<DatasetType>("quadratic");
 
-  // Generate different dataset types
+  // Generate different dataset types with seeded randomness
   const dataset = useMemo(() => {
     const points = 100;
     const x = Array.from({ length: points }, (_, i) => (i / points) * 10);
+    const rng = createRng(42); // Fixed seed for consistency
     let y: number[];
 
     switch (datasetType) {
       case "linear":
-        y = x.map((xi) => 2 * xi + 5 + (Math.random() - 0.5) * 2);
+        y = x.map((xi) => 2 * xi + 5 + (rng() - 0.5) * 2);
         break;
       case "quadratic":
-        y = x.map((xi) => 0.5 * xi ** 2 - 3 * xi + 10 + (Math.random() - 0.5) * 3);
+        y = x.map((xi) => 0.5 * xi ** 2 - 3 * xi + 10 + (rng() - 0.5) * 3);
         break;
       case "sigmoid":
-        y = x.map((xi) => 20 / (1 + Math.exp(-(xi - 5))) + (Math.random() - 0.5) * 1);
+        y = x.map((xi) => 20 / (1 + Math.exp(-(xi - 5))) + (rng() - 0.5) * 1);
         break;
       case "sine":
-        y = x.map((xi) => 10 + 5 * Math.sin(xi) + (Math.random() - 0.5) * 1);
+        y = x.map((xi) => 10 + 5 * Math.sin(xi) + (rng() - 0.5) * 1);
         break;
     }
 

@@ -14,7 +14,7 @@ export default function Home() {
         <div className="flex items-center gap-3">
           <div className="h-11 w-11 rounded-2xl border border-[rgba(255,255,255,0.18)] bg-[rgba(255,255,255,0.06)] shadow-[0_12px_32px_rgba(8,12,20,0.45)]" />
           <div>
-            <p className="text-xs uppercase tracking-[0.32em] text-[color:var(--color-text-secondary)]">TechTalk AI</p>
+            <p className="text-xs uppercase tracking-[0.32em] text-[color:var(--color-text-secondary)]">Leonteq Tech Talk AI</p>
           </div>
         </div>
         <nav className="hidden items-center gap-3 md:flex" aria-label="Primary">
@@ -112,7 +112,7 @@ export default function Home() {
 
         <footer className="relative z-10 mx-auto flex w-full max-w-[var(--max-width)] flex-col gap-4 px-6 pb-10 text-sm text-[color:var(--color-text-secondary)] lg:px-8">
           <div className="token-divider" />
-          <p>© {new Date().getFullYear()} TechTalk AI. Built for live demos paired with Jupyter notebooks.</p>
+          <p>This website was built by Daniel Huber using generative AI tool.</p>
         </footer>
       </div>
     </LandingExperience>

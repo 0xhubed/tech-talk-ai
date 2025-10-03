@@ -4,7 +4,6 @@ import dynamic from "next/dynamic";
 import { useMemo, useState, useEffect } from "react";
 import type { Config, Data, Layout } from "plotly.js";
 import { FullScreenCard } from "@/components/ui/FullScreenCard";
-import { generateHousingData } from "@/lib/housing";
 import { ViewModeButtons } from "./shared/ViewModeButtons";
 import { VCRControls } from "./shared/VCRControls";
 import { ParameterSlider } from "./shared/ParameterSlider";
@@ -18,90 +17,62 @@ const Plot = dynamic(() => import("react-plotly.js"), {
   ),
 });
 
-function formatNumber(num: number): string {
-  return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-}
-
 type GradientStep = {
-  w: number;
-  b: number;
+  x: number;
+  y: number;
   cost: number;
-  gradW: number;
-  gradB: number;
+  gradX: number;
+  gradY: number;
 };
 
 export function GradientDescentExplorer() {
   const [viewMode, setViewMode] = useState<"path" | "steps" | "both">("path");
-  const [learningRate, setLearningRate] = useState(0.1);
-  const [startPoint, setStartPoint] = useState<"random" | "custom" | "worst">("worst");
+  const [learningRate, setLearningRate] = useState(0.15);
+  const [startPoint, setStartPoint] = useState<"far" | "medium" | "near">("far");
   const [currentStep, setCurrentStep] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
 
-  // Generate housing data
-  const housingData = useMemo(() => {
-    const data = generateHousingData({ samples: 100, seed: 42 });
-    return data.map((d) => ({
-      x: d.squareFeet,
-      y: d.price,
-    }));
-  }, []);
-
-  // Calculate optimal parameters
-  const optimal = useMemo(() => {
-    const xs = housingData.map((d) => d.x);
-    const ys = housingData.map((d) => d.y);
-    const xMean = xs.reduce((acc, v) => acc + v, 0) / xs.length;
-    const yMean = ys.reduce((acc, v) => acc + v, 0) / ys.length;
-    const numerator = xs.reduce((acc, v, i) => acc + (v - xMean) * (ys[i] - yMean), 0);
-    const denominator = xs.reduce((acc, v) => acc + (v - xMean) ** 2, 0) || 1;
-    const w = numerator / denominator;
-    const b = yMean - w * xMean;
-    return { w, b };
-  }, [housingData]);
-
-  // Cost function
-  const calculateCost = (w: number, b: number) => {
-    const predictions = housingData.map((d) => w * d.x + b);
-    return predictions.reduce((acc, pred, i) => acc + Math.pow(pred - housingData[i].y, 2), 0) / housingData.length;
+  // Simple bowl-shaped cost function: f(x,y) = x² + 0.5y²
+  const calculateCost = (x: number, y: number) => {
+    return x * x + 0.5 * y * y;
   };
 
-  // Calculate gradients
-  const calculateGradients = (w: number, b: number) => {
-    const m = housingData.length;
-    let gradW = 0;
-    let gradB = 0;
-
-    for (const point of housingData) {
-      const prediction = w * point.x + b;
-      const error = prediction - point.y;
-      gradW += (error * point.x) / m;
-      gradB += error / m;
-    }
-
-    return { gradW, gradB };
+  // Gradient of f(x,y) = [2x, y]
+  const calculateGradients = (x: number, y: number) => {
+    return {
+      gradX: 2 * x,
+      gradY: y,
+    };
   };
 
   // Generate gradient descent path
   const descentPath = useMemo(() => {
     const steps: GradientStep[] = [];
-    let w = startPoint === "worst" ? 50 : startPoint === "random" ? 100 : optimal.w + 50;
-    let b = startPoint === "worst" ? 10000 : startPoint === "random" ? 20000 : optimal.b + 10000;
 
-    for (let i = 0; i < 30; i++) {
-      const cost = calculateCost(w, b);
-      const { gradW, gradB } = calculateGradients(w, b);
-      steps.push({ w, b, cost, gradW, gradB });
+    // Define starting points: far, medium, or near the minimum (0, 0)
+    const startPositions = {
+      far: { x: -2.5, y: 2.0 },
+      medium: { x: -1.5, y: 1.2 },
+      near: { x: -0.8, y: 0.6 },
+    };
 
-      // Update parameters
-      w = w - learningRate * gradW;
-      b = b - learningRate * gradB;
+    let { x, y } = startPositions[startPoint];
 
-      // Stop if converged
-      if (Math.abs(gradW) < 0.1 && Math.abs(gradB) < 1) break;
+    for (let i = 0; i < 50; i++) {
+      const cost = calculateCost(x, y);
+      const { gradX, gradY } = calculateGradients(x, y);
+      steps.push({ x, y, cost, gradX, gradY });
+
+      // Update parameters using gradient descent
+      x = x - learningRate * gradX;
+      y = y - learningRate * gradY;
+
+      // Stop if converged (gradient is very small)
+      if (Math.abs(gradX) < 0.001 && Math.abs(gradY) < 0.001) break;
     }
 
     return steps;
-  }, [housingData, learningRate, startPoint, optimal]);
+  }, [learningRate, startPoint]);
 
   // Auto-play effect
   useEffect(() => {
@@ -120,14 +91,15 @@ export function GradientDescentExplorer() {
 
   // 3D surface data
   const surfaceData = useMemo(() => {
-    const wRange = Array.from({ length: 30 }, (_, i) => optimal.w - 60 + i * 4);
-    const bRange = Array.from({ length: 30 }, (_, i) => optimal.b - 30000 + i * 2000);
-    const zValues = wRange.map((w) => bRange.map((b) => calculateCost(w, b)));
+    // Create a nice bowl-shaped surface from -3 to 3 in both dimensions
+    const xRange = Array.from({ length: 40 }, (_, i) => -3 + i * (6 / 39));
+    const yRange = Array.from({ length: 40 }, (_, i) => -3 + i * (6 / 39));
+    const zValues = xRange.map((x) => yRange.map((y) => calculateCost(x, y)));
 
     const surface: Partial<Data> = {
       type: "surface",
-      x: wRange,
-      y: bRange,
+      x: xRange,
+      y: yRange,
       z: zValues,
       colorscale: [
         [0, "#23e6ff"],
@@ -141,8 +113,8 @@ export function GradientDescentExplorer() {
     const pathTrace: Partial<Data> = {
       type: "scatter3d",
       mode: "lines+markers",
-      x: descentPath.slice(0, currentStep + 1).map((s) => s.w),
-      y: descentPath.slice(0, currentStep + 1).map((s) => s.b),
+      x: descentPath.slice(0, currentStep + 1).map((s) => s.x),
+      y: descentPath.slice(0, currentStep + 1).map((s) => s.y),
       z: descentPath.slice(0, currentStep + 1).map((s) => s.cost),
       line: {
         color: "rgba(255,200,87,1)",
@@ -158,8 +130,8 @@ export function GradientDescentExplorer() {
     const currentMarker: Partial<Data> = {
       type: "scatter3d",
       mode: "markers",
-      x: [descentPath[currentStep].w],
-      y: [descentPath[currentStep].b],
+      x: [descentPath[currentStep].x],
+      y: [descentPath[currentStep].y],
       z: [descentPath[currentStep].cost],
       marker: {
         size: 10,
@@ -172,7 +144,7 @@ export function GradientDescentExplorer() {
 
     const layout: Partial<Layout> = {
       autosize: true,
-      height: 500,
+      height: 550,
       margin: { l: 0, r: 0, t: 0, b: 0 },
       paper_bgcolor: "rgba(0,0,0,0)",
       font: {
@@ -180,9 +152,10 @@ export function GradientDescentExplorer() {
         color: "rgba(245,247,250,0.88)",
       },
       scene: {
-        xaxis: { title: "Weight (w)", gridcolor: "rgba(255,255,255,0.1)" },
-        yaxis: { title: "Bias (b)", gridcolor: "rgba(255,255,255,0.1)" },
-        zaxis: { title: "Cost", gridcolor: "rgba(255,255,255,0.1)" },
+        aspectratio: { x: 1.6, y: 1.6, z: 0.7 },
+        xaxis: { title: "x", gridcolor: "rgba(255,255,255,0.1)" },
+        yaxis: { title: "y", gridcolor: "rgba(255,255,255,0.1)" },
+        zaxis: { title: "f(x, y)", gridcolor: "rgba(255,255,255,0.1)" },
         bgcolor: "rgba(12,18,26,0.45)",
         camera: {
           eye: { x: 1.5, y: 1.5, z: 1.3 },
@@ -191,7 +164,7 @@ export function GradientDescentExplorer() {
     };
 
     return { data: [surface, pathTrace, currentMarker], layout };
-  }, [descentPath, currentStep, optimal]);
+  }, [descentPath, currentStep]);
 
   const config: Partial<Config> = useMemo(
     () => ({
@@ -224,7 +197,7 @@ export function GradientDescentExplorer() {
       </div>
 
       {(viewMode === "path" || viewMode === "both") && (
-        <div className="relative mb-6">
+        <div className="relative mb-6 w-full max-w-[1400px] mx-auto">
           <Plot
             data={surfaceData.data}
             layout={surfaceData.layout}
@@ -248,25 +221,25 @@ export function GradientDescentExplorer() {
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm font-medium text-[color:var(--color-text-primary)]">Step {idx + 1}</span>
                 <span className="text-xs text-[color:var(--color-text-secondary)]">
-                  Cost: ${formatNumber(Math.round(step.cost))}
+                  f(x, y) = {step.cost.toFixed(4)}
                 </span>
               </div>
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <span className="text-[color:var(--color-text-secondary)]">w = </span>
-                  <span className="font-mono text-[color:var(--color-accent)]">{step.w.toFixed(2)}</span>
+                  <span className="text-[color:var(--color-text-secondary)]">x = </span>
+                  <span className="font-mono text-[color:var(--color-accent)]">{step.x.toFixed(4)}</span>
                 </div>
                 <div>
-                  <span className="text-[color:var(--color-text-secondary)]">b = </span>
-                  <span className="font-mono text-[color:var(--color-accent)]">{Math.round(step.b)}</span>
+                  <span className="text-[color:var(--color-text-secondary)]">y = </span>
+                  <span className="font-mono text-[color:var(--color-accent)]">{step.y.toFixed(4)}</span>
                 </div>
                 <div>
-                  <span className="text-[color:var(--color-text-secondary)]">∇w = </span>
-                  <span className="font-mono text-xs">{step.gradW.toFixed(2)}</span>
+                  <span className="text-[color:var(--color-text-secondary)]">∇x = </span>
+                  <span className="font-mono text-xs">{step.gradX.toFixed(4)}</span>
                 </div>
                 <div>
-                  <span className="text-[color:var(--color-text-secondary)]">∇b = </span>
-                  <span className="font-mono text-xs">{step.gradB.toFixed(2)}</span>
+                  <span className="text-[color:var(--color-text-secondary)]">∇y = </span>
+                  <span className="font-mono text-xs">{step.gradY.toFixed(4)}</span>
                 </div>
               </div>
             </div>
@@ -278,8 +251,8 @@ export function GradientDescentExplorer() {
         <ParameterSlider
           label="Learning Rate (α)"
           value={learningRate}
-          min={0.01}
-          max={1.0}
+          min={0.05}
+          max={0.5}
           step={0.01}
           onChange={(v) => {
             setLearningRate(v);
@@ -290,7 +263,7 @@ export function GradientDescentExplorer() {
 
         <div className="flex items-center gap-3 text-xs">
           <span className="uppercase tracking-[0.22em] text-[color:var(--color-text-secondary)]">Starting Point</span>
-          {(["worst", "random", "custom"] as const).map((point) => (
+          {(["far", "medium", "near"] as const).map((point) => (
             <button
               key={point}
               type="button"
@@ -323,35 +296,115 @@ export function GradientDescentExplorer() {
         />
       </div>
 
-      <div className="mb-6 bg-[rgba(35,230,255,0.08)] border border-[rgba(35,230,255,0.2)] rounded-lg p-4">
-        <div className="grid grid-cols-2 gap-4 text-sm">
-          <div>
-            <span className="text-[color:var(--color-text-secondary)]">Current w:</span>
-            <span className="ml-2 font-mono text-[color:var(--color-accent)]">{currentStepData.w.toFixed(2)}</span>
+      {/* Understanding the Gradient (Derivative) */}
+      <div className="mb-6 bg-[rgba(63,94,251,0.08)] border border-[rgba(63,94,251,0.3)] rounded-lg p-5">
+        <h3 className="text-sm font-semibold text-[color:var(--color-text-primary)] mb-3 uppercase tracking-[0.2em]">
+          Understanding the Gradient (Derivative)
+        </h3>
+        <div className="grid gap-4 lg:grid-cols-3">
+          <div className="bg-[rgba(12,18,26,0.6)] rounded-lg p-4 border border-[rgba(255,255,255,0.1)]">
+            <p className="text-sm text-[color:var(--color-text-secondary)] mb-3">
+              <strong className="text-[color:var(--color-text-primary)]">What is a derivative?</strong>
+              <br />
+              The derivative tells us the <em>slope</em> or <em>rate of change</em> at any point.
+              For our function <strong>f(x, y) = x² + 0.5y²</strong>, the gradient is a vector pointing uphill.
+            </p>
+            <div className="mt-3 space-y-2 text-xs font-mono">
+              <div className="flex items-center gap-2">
+                <span className="text-[color:var(--color-text-secondary)]">∂f/∂x =</span>
+                <span className="text-[rgba(35,230,255,1)]">2x</span>
+                <span className="text-[color:var(--color-text-secondary)]">(slope in x)</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-[color:var(--color-text-secondary)]">∂f/∂y =</span>
+                <span className="text-[rgba(35,230,255,1)]">y</span>
+                <span className="text-[color:var(--color-text-secondary)]">(slope in y)</span>
+              </div>
+            </div>
           </div>
-          <div>
-            <span className="text-[color:var(--color-text-secondary)]">Current b:</span>
-            <span className="ml-2 font-mono text-[color:var(--color-accent)]">{Math.round(currentStepData.b)}</span>
+          <div className="bg-[rgba(12,18,26,0.6)] rounded-lg p-4 border border-[rgba(255,255,255,0.1)]">
+            <p className="text-xs font-semibold text-[color:var(--color-text-primary)] mb-2 uppercase tracking-[0.18em]">
+              1D Example: f(x) = x²
+            </p>
+            <svg viewBox="0 0 200 120" className="w-full" style={{ maxHeight: "140px" }}>
+              <defs>
+                <linearGradient id="curve-grad" x1="0" x2="1" y1="0" y2="0">
+                  <stop offset="0%" stopColor="rgba(255,47,185,0.8)" />
+                  <stop offset="100%" stopColor="rgba(124,92,255,0.8)" />
+                </linearGradient>
+              </defs>
+              {/* Axes */}
+              <line x1="20" y1="100" x2="180" y2="100" stroke="rgba(255,255,255,0.2)" strokeWidth="1" />
+              <line x1="20" y1="100" x2="20" y2="20" stroke="rgba(255,255,255,0.2)" strokeWidth="1" />
+              {/* Parabola f(x) = x² */}
+              <path
+                d="M 20,100 Q 100,25 180,100"
+                fill="none"
+                stroke="url(#curve-grad)"
+                strokeWidth="2.5"
+              />
+              {/* Point on curve */}
+              <circle cx="70" cy="55" r="3" fill="rgba(255,200,87,1)" />
+              {/* Tangent line (derivative/slope) */}
+              <line
+                x1="40"
+                y1="75"
+                x2="100"
+                y2="35"
+                stroke="rgba(35,230,255,0.9)"
+                strokeWidth="2"
+                strokeDasharray="3 2"
+              />
+              {/* Labels */}
+              <text x="100" y="115" fontSize="9" fill="rgba(255,255,255,0.6)" textAnchor="middle">x</text>
+              <text x="12" y="25" fontSize="9" fill="rgba(255,255,255,0.6)" textAnchor="end">f(x)</text>
+              <text x="115" y="30" fontSize="8" fill="rgba(35,230,255,1)">slope = 2x</text>
+            </svg>
+            <p className="text-xs text-[color:var(--color-text-secondary)] mt-2">
+              Tangent line (cyan) shows slope. For f(x)=x², derivative is 2x.
+            </p>
           </div>
-          <div>
-            <span className="text-[color:var(--color-text-secondary)]">Cost:</span>
-            <span className="ml-2 font-mono text-[color:var(--color-accent)]">
-              ${formatNumber(Math.round(currentStepData.cost))}
-            </span>
-          </div>
-          <div>
-            <span className="text-[color:var(--color-text-secondary)]">Gradient:</span>
-            <span className="ml-2 font-mono text-xs">
-              ∇w={currentStepData.gradW.toFixed(2)}, ∇b={currentStepData.gradB.toFixed(2)}
-            </span>
+          <div className="bg-[rgba(12,18,26,0.6)] rounded-lg p-4 border border-[rgba(255,255,255,0.1)]">
+            <p className="text-sm text-[color:var(--color-text-secondary)] mb-3">
+              <strong className="text-[color:var(--color-text-primary)]">At current step:</strong>
+            </p>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-[color:var(--color-text-secondary)]">Position:</span>
+                <span className="font-mono text-[color:var(--color-accent)]">
+                  ({currentStepData.x.toFixed(3)}, {currentStepData.y.toFixed(3)})
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-[color:var(--color-text-secondary)]">∂f/∂x:</span>
+                <span className="font-mono text-[rgba(35,230,255,1)]">{currentStepData.gradX.toFixed(4)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-[color:var(--color-text-secondary)]">∂f/∂y:</span>
+                <span className="font-mono text-[rgba(35,230,255,1)]">{currentStepData.gradY.toFixed(4)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-[color:var(--color-text-secondary)]">Cost f(x,y):</span>
+                <span className="font-mono text-[color:var(--color-accent)]">{currentStepData.cost.toFixed(4)}</span>
+              </div>
+              <div className="mt-3 pt-3 border-t border-[rgba(255,255,255,0.1)]">
+                <p className="text-xs text-[color:var(--color-text-secondary)]">
+                  <strong className="text-[rgba(255,200,87,1)]">Next step:</strong> Move <em>opposite</em> to gradient:
+                  <br />
+                  x ← x - α·(∂f/∂x)
+                  <br />
+                  = {currentStepData.x.toFixed(3)} - {learningRate.toFixed(2)}·{currentStepData.gradX.toFixed(3)}
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
       <div className="bg-[rgba(255,200,87,0.08)] border border-[rgba(255,200,87,0.3)] rounded-lg p-4">
         <p className="text-sm text-[color:var(--color-text-secondary)]">
-          💡 Larger learning rates take bigger steps but might overshoot the minimum. Watch how the algorithm navigates
-          to the optimal parameters.
+          <strong className="text-[color:var(--color-text-primary)]">f(x, y) = x² + 0.5y²</strong> — A smooth bowl-shaped surface with minimum at (0, 0).
+          Larger learning rates take bigger steps but might overshoot. Watch how the algorithm navigates toward the minimum.
         </p>
       </div>
     </FullScreenCard>

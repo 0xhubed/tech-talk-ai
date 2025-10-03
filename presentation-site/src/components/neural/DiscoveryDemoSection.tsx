@@ -7,13 +7,14 @@ export function DiscoveryDemoSection() {
         <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
           {/* Left: Introduction */}
           <div className="flex flex-col justify-center gap-6">
-            <span className="badge w-fit">Opening Demo</span>
+            <span className="badge w-fit">Motivation</span>
             <h2 className="section-heading">
               Can AI Discover Mathematical Laws?
             </h2>
             <p className="section-body">
-              Before diving into neural networks, witness autonomous AI discovery in action. Watch an AI agent
-              rediscover the compound interest law from noisy data—without being told what it's looking for.
+              Many think of LLMs as knowledge databases—places to retrieve information. This demo reveals their true power:
+              they are reasoning engines. Watch an AI agent rediscover the compound interest law from noisy data through
+              iterative hypothesis generation and testing—without being told what it's looking for.
             </p>
             <div className="flex flex-col gap-3">
               <div className="flex items-start gap-3">
@@ -84,7 +85,7 @@ export function DiscoveryDemoSection() {
                 type="button"
                 className="button-primary w-full"
                 onClick={() => {
-                  const jupyterUrl = `http://localhost:8888/lab/tree/maschine%20learning%20foundations%20content/0_discovery_compound_interest.ipynb`;
+                  const jupyterUrl = `http://localhost:8888/notebooks/0_discovery_compound_interest.ipynb`;
                   window.open(jupyterUrl, "_blank");
                 }}
               >
@@ -92,7 +93,7 @@ export function DiscoveryDemoSection() {
               </button>
 
               <p className="text-xs text-center text-[color:var(--color-text-secondary)]">
-                Opens in Jupyter Lab (requires local Jupyter server)
+                Opens in Jupyter Notebook (requires local Jupyter server)
               </p>
             </div>
           </div>

@@ -1,10 +1,9 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState } from "react";
 import type { Config, Data, Layout } from "plotly.js";
 import { FullScreenCard } from "@/components/ui/FullScreenCard";
-import { generateHousingData } from "@/lib/housing";
 
 const Plot = dynamic(() => import("react-plotly.js"), {
   ssr: false,
@@ -15,8 +14,34 @@ const Plot = dynamic(() => import("react-plotly.js"), {
   ),
 });
 
-function formatNumber(num: number): string {
-  return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+// Seeded random number generator for consistent results
+function createRng(seed: number) {
+  let state = seed % 2147483647;
+  if (state <= 0) state += 2147483646;
+  return () => {
+    state = (state * 16807) % 2147483647;
+    return (state - 1) / 2147483646;
+  };
+}
+
+type DataPoint = {
+  x: number;
+  y: number;
+};
+
+// Generate clean mathematical data: y = 3x + 5 + noise
+function generateCleanData(count: number, seed: number): DataPoint[] {
+  const rng = createRng(seed);
+  const points: DataPoint[] = [];
+
+  for (let i = 0; i < count; i++) {
+    const x = (i / count) * 10; // x ranges from 0 to 10
+    const noise = (rng() - 0.5) * 6; // noise in range [-3, 3]
+    const y = 3 * x + 5 + noise; // true relationship: y = 3x + 5
+    points.push({ x: Number(x.toFixed(2)), y: Number(y.toFixed(2)) });
+  }
+
+  return points;
 }
 
 type TrainingConfig = {
@@ -25,10 +50,10 @@ type TrainingConfig = {
 };
 
 const PRESETS: { label: string; config: TrainingConfig }[] = [
-  { label: "0.01 / 10 iter", config: { learningRate: 0.01, iterations: 10 } },
-  { label: "0.1 / 50 iter", config: { learningRate: 0.1, iterations: 50 } },
-  { label: "0.5 / 100 iter", config: { learningRate: 0.5, iterations: 100 } },
-  { label: "1.0 / 500 iter", config: { learningRate: 1.0, iterations: 500 } },
+  { label: "0.01 / 20 iter", config: { learningRate: 0.01, iterations: 20 } },
+  { label: "0.05 / 50 iter", config: { learningRate: 0.05, iterations: 50 } },
+  { label: "0.1 / 100 iter", config: { learningRate: 0.1, iterations: 100 } },
+  { label: "0.2 / 200 iter", config: { learningRate: 0.2, iterations: 200 } },
 ];
 
 export function TrainingPipelineDemo() {
@@ -40,26 +65,20 @@ export function TrainingPipelineDemo() {
 
   const config = PRESETS[selectedPreset].config;
 
-  // Generate housing data
-  const housingData = useMemo(() => {
-    const data = generateHousingData({ samples: 100, seed: 42 });
-    return data.map((d) => ({
-      x: d.squareFeet,
-      y: d.price,
-    }));
-  }, []);
+  // Generate clean mathematical data
+  const dataPoints = useMemo(() => generateCleanData(80, 42), []);
 
   const calculateCost = (w: number, b: number) => {
-    const predictions = housingData.map((d) => w * d.x + b);
-    return predictions.reduce((acc, pred, i) => acc + Math.pow(pred - housingData[i].y, 2), 0) / housingData.length;
+    const predictions = dataPoints.map((d) => w * d.x + b);
+    return predictions.reduce((acc, pred, i) => acc + Math.pow(pred - dataPoints[i].y, 2), 0) / dataPoints.length;
   };
 
   const calculateGradients = (w: number, b: number) => {
-    const m = housingData.length;
+    const m = dataPoints.length;
     let gradW = 0;
     let gradB = 0;
 
-    for (const point of housingData) {
+    for (const point of dataPoints) {
       const prediction = w * point.x + b;
       const error = prediction - point.y;
       gradW += (error * point.x) / m;
@@ -76,8 +95,8 @@ export function TrainingPipelineDemo() {
     const history: { w: number; b: number; cost: number }[] = [];
 
     const startTime = Date.now();
-    let w = 50;
-    let b = 10000;
+    let w = 0.5;  // Start with small w for y = 3x + 5
+    let b = 1.0;  // Start with small b
 
     for (let i = 0; i < config.iterations; i++) {
       const cost = calculateCost(w, b);
@@ -116,8 +135,8 @@ export function TrainingPipelineDemo() {
     () => ({
       type: "scatter",
       mode: "markers",
-      x: housingData.map((d) => d.x),
-      y: housingData.map((d) => d.y),
+      x: dataPoints.map((d) => d.x),
+      y: dataPoints.map((d) => d.y),
       marker: {
         size: 6,
         color: "rgba(35,230,255,0.6)",
@@ -125,14 +144,14 @@ export function TrainingPipelineDemo() {
       },
       name: "Data",
     }),
-    [housingData],
+    [dataPoints],
   );
 
   // Model line trace (current state)
   const modelTrace: Partial<Data> = useMemo(() => {
     if (trainingHistory.length === 0) return {};
     const latest = trainingHistory[trainingHistory.length - 1];
-    const xs = housingData.map((d) => d.x);
+    const xs = dataPoints.map((d) => d.x);
     const xMin = Math.min(...xs);
     const xMax = Math.max(...xs);
 
@@ -147,7 +166,7 @@ export function TrainingPipelineDemo() {
       },
       name: "Model",
     };
-  }, [trainingHistory, housingData]);
+  }, [trainingHistory, dataPoints]);
 
   // Cost over time trace
   const costTrace: Partial<Data> = useMemo(
@@ -176,15 +195,14 @@ export function TrainingPipelineDemo() {
       color: "rgba(245,247,250,0.88)",
     },
     xaxis: {
-      title: "Square Feet",
+      title: "x",
       zeroline: false,
       gridcolor: "rgba(255,255,255,0.08)",
     },
     yaxis: {
-      title: "Price",
+      title: "y",
       zeroline: false,
       gridcolor: "rgba(255,255,255,0.08)",
-      tickprefix: "$",
     },
     showlegend: false,
   };
@@ -312,12 +330,12 @@ export function TrainingPipelineDemo() {
             </div>
             <div>
               <span className="text-[color:var(--color-text-secondary)]">Final b:</span>
-              <div className="font-mono text-[color:var(--color-accent)] mt-1">{Math.round(finalResults.b)}</div>
+              <div className="font-mono text-[color:var(--color-accent)] mt-1">{finalResults.b.toFixed(2)}</div>
             </div>
             <div>
-              <span className="text-[color:var(--color-text-secondary)]">Final Cost:</span>
+              <span className="text-[color:var(--color-text-secondary)]">Final Cost (MSE):</span>
               <div className="font-mono text-[color:var(--color-accent)] mt-1">
-                ${formatNumber(Math.round(finalResults.cost))}
+                {finalResults.cost.toFixed(3)}
               </div>
             </div>
             <div>
@@ -330,8 +348,9 @@ export function TrainingPipelineDemo() {
 
       <div className="bg-[rgba(255,200,87,0.08)] border border-[rgba(255,200,87,0.3)] rounded-lg p-4">
         <p className="text-sm text-[color:var(--color-text-secondary)]">
-          💡 Watch the prediction line improve as cost decreases with each iteration. Different learning rates and
-          iteration counts affect convergence speed.
+          <strong className="text-[color:var(--color-text-primary)]">Training on y = 3x + 5</strong> (with noise).
+          Watch the prediction line improve as MSE decreases with each iteration. Different learning rates affect convergence speed—
+          higher rates converge faster but may overshoot, while lower rates are more stable but slower.
         </p>
       </div>
     </FullScreenCard>
