@@ -1,0 +1,70 @@
+# Leonteq-inspired matplotlib style
+# see https://matplotlib.org/stable/tutorials/introductory/customizing.html
+lines.linewidth: 4
+lines.solid_capstyle: butt
+
+legend.fancybox: true
+
+# Leonteq Brand Colors
+# Primary Orange (Leonteq brand color - energy, optimism, dynamics) FF7F00
+# Navy Blue (complementary - trust, stability) 002855
+# Dark Grey (professional) 4A4A4A
+# Light Grey (accents) CBCBCB
+# Teal (accent - innovation) 069494
+
+# Color cycle - Leonteq orange as primary
+axes.prop_cycle: cycler('color', ['FF7F00', '002855', '069494', '4A4A4A', 'CBCBCB'])
+axes.facecolor: ffffff  # white
+axes.labelsize: large
+axes.axisbelow: true
+axes.grid: False
+axes.edgecolor: CBCBCB  # light grey borders
+axes.linewidth: 2.5
+axes.titlesize: x-large
+
+patch.edgecolor: CBCBCB
+patch.linewidth: 0.5
+
+svg.fonttype: path
+
+grid.linestyle: -
+grid.linewidth: 1.0
+grid.color: E5E5E5  # very light grey grid
+
+xtick.major.size: 0
+xtick.minor.size: 0
+ytick.major.size: 0
+ytick.minor.size: 0
+
+savefig.edgecolor: ffffff
+savefig.facecolor: ffffff
+
+figure.facecolor: ffffff  # white
+
+## ***************************************************************************
+## * FONT                                                                    *
+## ***************************************************************************
+## Using clean, modern sans-serif fonts for a professional fintech look
+
+font.family:  sans-serif
+font.style:   normal
+font.variant: normal
+font.weight:  normal
+font.stretch: normal
+font.size:    10.0
+
+font.serif:      DejaVu Serif, Bitstream Vera Serif, Computer Modern Roman, New Century Schoolbook, Century Schoolbook L, Utopia, ITC Bookman, Bookman, Nimbus Roman No9 L, Times New Roman, Times, Palatino, Charter, serif
+font.sans-serif: Arial, Helvetica, DejaVu Sans, Bitstream Vera Sans, Computer Modern Sans Serif, Lucida Grande, Geneva, Lucid, Avant Garde, sans-serif
+font.cursive:    Apple Chancery, Textile, Zapf Chancery, Sand, Script MT, Felipa, Comic Neue, Comic Sans MS, cursive
+font.fantasy:    Chicago, Charcoal, Impact, Western, Humor Sans, xkcd, fantasy
+font.monospace:  DejaVu Sans Mono, Bitstream Vera Sans Mono, Computer Modern Typewriter, Andale Mono, Nimbus Mono L, Courier New, Courier, Fixed, Terminal, monospace
+
+
+## ***************************************************************************
+## * TEXT                                                                    *
+## ***************************************************************************
+## The text properties used by `text.Text`.
+## See https://matplotlib.org/api/artist_api.html#module-matplotlib.text
+## for more information on text properties
+text.color: 333333  # dark grey for better readability
+

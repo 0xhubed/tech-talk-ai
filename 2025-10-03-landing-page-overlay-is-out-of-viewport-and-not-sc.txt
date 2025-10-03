@@ -1,0 +1,1485 @@
+
+╭─── Claude Code v2.0.5 ───────────────────────────────────────────────────────────────────────────────────────────────╮
+│                              │ Tips for getting started                                                              │
+│     Welcome back Daniel!     │ Run /init to create a CLAUDE.md file with instructions for Claude                     │
+│                              │ Use Claude to help with file analysis, editing, bash commands and git                 │
+│            ▐▛███▜▌           │ Be as specific as you would with another engineer for the best results                │
+│           ▝▜█████▛▘          │ ──────────────────────────────────────────────────────────────────────                │
+│             ▘▘ ▝▝            │ Recent activity                                                                       │
+│                              │ No recent activity                                                                    │
+│   Sonnet 4.5 · Claude API    │                                                                                       │
+│   C:\projects\techTalkSide   │                                                                                       │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+
+> landing page overlay is out of viewport and not scrollable see image [Image #1] 
+
+● I can see the issue - the landing page content is cut off and not scrollable. Let me first explore the project
+  structure to understand the codebase and locate the relevant files.
+
+● Search(pattern: "**/*.{html,jsx,tsx,css,scss}")
+  ⎿  Found 82 files (ctrl+o to expand)
+
+● Bash(ls -la)
+  ⎿  total 819                                       
+     drwxr-xr-x 1 danie 197609      0 Oct  3 04:39 .
+     drwxr-xr-x 1 danie 197609      0 Oct  3 04:32 ..
+     … +17 lines (ctrl+o to expand)
+
+● Now let me read the landing overlay component to understand the issue:
+
+● Read(presentation-site\src\components\landing\LandingOverlay.tsx)
+  ⎿  Read 176 lines (ctrl+o to expand)
+
+● Read(presentation-site\src\app\page.tsx)
+  ⎿  Read 121 lines (ctrl+o to expand)
+
+● Now let me check the CSS/globals to understand the styling:
+
+● Read(presentation-site\src\app\globals.css)
+  ⎿  Read 812 lines (ctrl+o to expand)
+
+● Now let me check the FullScreenCard component that's being used:
+
+● Read(presentation-site\src\components\ui\FullScreenCard.tsx)
+  ⎿  Read 101 lines (ctrl+o to expand)
+
+● I can see the issue. The .landing-overlay__card has a fixed max-height applied through the
+  .landing-overlay__viz-body selector at line 519 in globals.css, but the main card itself doesn't have overflow
+  handling. The content is taller than the viewport can handle. Let me fix this by making the landing overlay card
+  scrollable:
+
+● Update(presentation-site\src\app\globals.css)
+  ⎿  Updated presentation-site\src\app\globals.css with 3 additions
+       409    .landing-overlay__card {
+       410      position: relative;
+       411      width: min(1080px, 100%);
+       412 +    max-height: 90vh;
+       413      padding: clamp(3rem, 7vw, 4.8rem);
+       414      display: flex;
+       415      flex-direction: column;
+       416      gap: clamp(1.5rem, 3vw, 2rem);
+       417      backdrop-filter: blur(18px);
+       418 +    overflow-y: auto;
+       419 +    overflow-x: hidden;
+       420    }
+       421    
+       422    
+
+● I've fixed the landing page overlay scroll issue by adding:
+  - max-height: 90vh to constrain the card height to 90% of viewport height
+  - overflow-y: auto to enable vertical scrolling when content exceeds the max height
+  - overflow-x: hidden to prevent horizontal overflow
+
+  The landing overlay content is now scrollable and won't be cut off from the viewport at
+  C:\projects\techTalkSide\presentation-site\src\app\globals.css:412-419.
+
+> it would be nice if the landing page would adapt the size of the screen if possible? without scrolling 
+
+● I'll optimize the landing page to better adapt to the screen size without scrolling. Let me analyze the layout and
+   make adjustments to use available space more efficiently.
+
+● Update(presentation-site\src\app\globals.css)
+  ⎿  Updated presentation-site\src\app\globals.css with 3 additions and 3 removals
+       409    .landing-overlay__card {
+       410      position: relative;
+       411      width: min(1080px, 100%);
+       412 -    max-height: 90vh;
+       413 -    padding: clamp(3rem, 7vw, 4.8rem);
+       412 +    max-height: 92vh;
+       413 +    padding: clamp(1.5rem, 4vw, 3rem);
+       414      display: flex;
+       415      flex-direction: column;
+       416 -    gap: clamp(1.5rem, 3vw, 2rem);
+       416 +    gap: clamp(0.8rem, 2vw, 1.2rem);
+       417      backdrop-filter: blur(18px);
+       418      overflow-y: auto;
+       419      overflow-x: hidden;
+
+● Update(presentation-site\src\app\globals.css)
+  ⎿  Updated presentation-site\src\app\globals.css with 1 addition and 1 removal      
+       456    
+       457    .landing-overlay__title {
+       458      font-family: var(--font-space-grotesk), var(--font-inter), sans-serif;
+       459 -    font-size: clamp(2.6rem, 5vw, 3.8rem);
+       459 +    font-size: clamp(1.8rem, 4vw, 3rem);
+       460      line-height: 1.05;
+       461      margin: 0;
+       462    }
+
+● Update(presentation-site\src\app\globals.css)
+  ⎿  Updated presentation-site\src\app\globals.css with 1 addition and 1 removal
+       465      width: 100%;
+       466      display: flex;
+       467      justify-content: center;
+       468 -    margin-bottom: clamp(1.4rem, 3.5vw, 2.6rem);
+       468 +    margin-bottom: 0;
+       469    }
+       470    
+       471    .landing-overlay__viz-card {
+
+● Update(presentation-site\src\app\globals.css)
+  ⎿  Updated presentation-site\src\app\globals.css with 2 additions and 2 removals                       
+       472      position: relative;
+       473      width: min(100%, 720px);
+       474      max-width: 760px;
+       475 -    padding: clamp(1.3rem, 2.4vw, 2rem);
+       476 -    border-radius: 24px;
+       475 +    padding: clamp(1rem, 2vw, 1.5rem);
+       476 +    border-radius: 20px;
+       477      background: linear-gradient(160deg, rgba(12, 18, 26, 0.88), rgba(28, 15, 34, 0.82));
+       478      border: 1px solid rgba(255, 255, 255, 0.08);
+       479      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04), 0 28px 60px rgba(8, 12, 20, 0.45);
+
+● Update(presentation-site\src\app\globals.css)
+  ⎿  Updated presentation-site\src\app\globals.css with 2 additions and 2 removals
+       497      justify-content: space-between;
+       498      align-items: baseline;
+       499      flex-wrap: wrap;
+       500 -    gap: 0.9rem;
+       501 -    margin-bottom: 1.5rem;
+       500 +    gap: 0.6rem;
+       501 +    margin-bottom: 1rem;
+       502      z-index: 1;
+       503    }
+       504    
+
+● Update(presentation-site\src\app\globals.css)
+  ⎿  Updated presentation-site\src\app\globals.css with 3 additions and 3 removals                 
+       517    .landing-overlay__viz-body {
+       518      position: relative;
+       519      z-index: 1;
+       520 -    border-radius: 22px;
+       521 -    padding: clamp(1.2rem, 2.2vw, 1.7rem);
+       522 -    max-height: clamp(260px, 40vh, 320px);
+       520 +    border-radius: 18px;
+       521 +    padding: clamp(0.8rem, 1.5vw, 1.2rem);
+       522 +    max-height: clamp(180px, 25vh, 240px);
+       523      background: linear-gradient(135deg, rgba(12, 18, 26, 0.8), rgba(12, 20, 32, 0.58));
+       524      border: 1px solid rgba(255, 255, 255, 0.05);
+       525      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+
+● Update(presentation-site\src\app\globals.css)
+  ⎿  Updated presentation-site\src\app\globals.css with 1 addition and 1 removal
+       555    .landing-overlay__chart {
+       556      width: 100%;
+       557      height: auto;
+       558 -    max-height: 200px;
+       558 +    max-height: clamp(120px, 20vh, 160px);
+       559      filter: drop-shadow(0 12px 40px rgba(8, 12, 20, 0.45));
+       560    }
+       561    
+
+● Update(presentation-site\src\app\globals.css)
+  ⎿  Updated presentation-site\src\app\globals.css with 2 additions and 2 removals
+       601    
+       602    .landing-overlay__metrics {
+       603      position: relative;
+       604 -    margin-top: clamp(1.5rem, 3vw, 2.3rem);
+       604 +    margin-top: clamp(0.8rem, 2vw, 1.2rem);
+       605      display: grid;
+       606 -    gap: 0.9rem;
+       606 +    gap: 0.6rem;
+       607      z-index: 1;
+       608    }
+       609    
+
+● Update(presentation-site\src\app\globals.css)
+  ⎿  Updated presentation-site\src\app\globals.css with 5 additions and 5 removals                  
+       667    
+       668    .landing-overlay__agenda {
+       669      display: grid;
+       670 -    gap: clamp(1rem, 2.6vw, 1.8rem);
+       671 -    padding: clamp(1.4rem, 3vw, 2.1rem);
+       672 -    border-radius: 24px;
+       670 +    gap: clamp(0.6rem, 1.5vw, 1rem);
+       671 +    padding: clamp(1rem, 2vw, 1.5rem);
+       672 +    border-radius: 20px;
+       673      background: linear-gradient(150deg, rgba(12, 18, 26, 0.82), rgba(20, 24, 38, 0.62));
+       674      border: 1px solid rgba(255, 255, 255, 0.06);
+       675      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+       676 -    margin-top: -0.5rem;
+       677 -    margin-bottom: clamp(1.4rem, 3vw, 2.4rem);
+       676 +    margin-top: 0;
+       677 +    margin-bottom: 0;
+       678    }
+       679    
+       680    .landing-overlay__agenda h2 {
+
+● Update(presentation-site\src\app\globals.css)
+  ⎿  Updated presentation-site\src\app\globals.css with 1 addition and 1 removal
+       689      margin: 0;
+       690      padding-left: 1.2rem;
+       691      display: grid;
+       692 -    gap: clamp(0.6rem, 1.8vw, 0.9rem);
+       692 +    gap: clamp(0.4rem, 1vw, 0.6rem);
+       693      color: rgba(247, 249, 255, 0.9);
+       694      list-style: decimal;
+       695      list-style-position: inside;
+
+● Update(presentation-site\src\app\globals.css)
+  ⎿  Updated presentation-site\src\app\globals.css with 2 additions and 2 removals
+       696    }
+       697    
+       698    .landing-overlay__agenda li {
+       699 -    font-size: 1.05rem;
+       699 +    font-size: clamp(0.9rem, 1.8vw, 1.05rem);
+       700      letter-spacing: 0.02em;
+       701      display: flex;
+       702      align-items: baseline;
+       703      justify-content: space-between;
+       704 -    gap: 1rem;
+       704 +    gap: 0.8rem;
+       705    }
+       706    
+       707    .landing-overlay__agenda-speaker {
+
+● Update(presentation-site\src\app\globals.css)
+  ⎿  Updated presentation-site\src\app\globals.css with 2 additions and 1 removal
+       705    }
+       706    
+       707    .landing-overlay__agenda-speaker {
+       708 -    font-size: 0.85rem;
+       708 +    font-size: clamp(0.7rem, 1.4vw, 0.85rem);
+       709      letter-spacing: 0.24em;
+       710      text-transform: uppercase;
+       711      color: rgba(247, 249, 255, 0.68);
+       712 +    white-space: nowrap;
+       713    }
+       714    
+       715    .landing-overlay__hint {
+
+● Update(presentation-site\src\app\globals.css)
+  ⎿  Updated presentation-site\src\app\globals.css with 1 addition and 1 removal
+       679    
+       680    .landing-overlay__agenda h2 {
+       681      margin: 0;
+       682 -    font-size: 1.02rem;
+       682 +    font-size: clamp(0.85rem, 1.6vw, 1.02rem);
+       683      letter-spacing: 0.28em;
+       684      text-transform: uppercase;
+       685      color: rgba(247, 249, 255, 0.78);
+
+● Now let me also add a media query to handle the CTA buttons better on smaller screens:
+
+● Read(presentation-site\src\app\globals.css)
+  ⎿  Read 30 lines (ctrl+o to expand)
+
+● Let me check if there's a .landing-overlay__cta style and add responsive improvements:
+
+● Search(pattern: "landing-overlay__cta", path: "presentation-site\src\app\globals.css", output_mode: "content")
+  ⎿  Found 0 lines 
+
+● Now let me add styles for the CTA section to make it more compact and add a media query at the end of the file:
+
+● Update(presentation-site\src\app\globals.css)
+  ⎿  Updated presentation-site\src\app\globals.css with 9 additions
+       712      white-space: nowrap;
+       713    }
+       714    
+       715 +  .landing-overlay__cta {
+       716 +    display: flex;
+       717 +    flex-wrap: wrap;
+       718 +    gap: clamp(0.5rem, 1.2vw, 0.8rem);
+       719 +    align-items: center;
+       720 +    justify-content: center;
+       721 +  }
+       722 +  
+       723    .landing-overlay__hint {
+       724      font-size: 0.82rem;
+       725      letter-spacing: 0.24em;
+       726      text-transform: uppercase;
+       727      color: rgba(247, 249, 255, 0.62);
+       728 +    text-align: center;
+       729    }
+       730    
+       731    .landing-overlay__particles {
+
+● Read(presentation-site\src\app\globals.css)
+  ⎿  Read 20 lines (ctrl+o to expand)
+
+● Now let me add responsive styles for very small screens at the end of the file:
+
+● Update(presentation-site\src\app\globals.css)
+  ⎿  Updated presentation-site\src\app\globals.css with 31 additions   
+       822      70% { transform: translate(420px, 10px); opacity: 1; }
+       823      100% { transform: translate(660px, 50px); opacity: 0; }
+       824    }
+       825 +  
+       826 +  /* Responsive adjustments for smaller screens */
+       827 +  @media (max-height: 800px) {
+       828 +    .landing-overlay__card {
+       829 +      padding: clamp(1rem, 3vw, 2rem);
+       830 +      gap: clamp(0.6rem, 1.5vw, 1rem);
+       831 +    }
+       832 +  
+       833 +    .landing-overlay__title {
+       834 +      font-size: clamp(1.5rem, 3.5vw, 2.5rem);
+       835 +    }
+       836 +  
+       837 +    .landing-overlay__viz-body {
+       838 +      max-height: clamp(140px, 20vh, 180px);
+       839 +    }
+       840 +  
+       841 +    .landing-overlay__chart {
+       842 +      max-height: clamp(100px, 15vh, 140px);
+       843 +    }
+       844 +  
+       845 +    .landing-overlay__agenda {
+       846 +      gap: clamp(0.5rem, 1vw, 0.8rem);
+       847 +      padding: clamp(0.8rem, 1.5vw, 1.2rem);
+       848 +    }
+       849 +  
+       850 +    .button-primary,
+       851 +    .button-secondary {
+       852 +      padding: 0.7rem 1.4rem;
+       853 +      font-size: 0.9rem;
+       854 +    }
+       855 +  }
+
+● Perfect! I've optimized the landing page to adapt better to different screen sizes without requiring scrolling.
+  The changes include:
+
+  Main improvements:
+  1. Reduced padding and gaps - More compact spacing throughout (card padding, gaps between sections)
+  2. Smaller title - Reduced from 2.6-3.8rem to 1.8-3rem
+  3. Compressed visualization section - Reduced chart height from 260-320px to 180-240px
+  4. Tighter agenda section - Reduced padding and gaps, made font sizes responsive
+  5. Better CTA buttons - Added flex layout with compact gaps
+  6. Media query for small screens - Added responsive adjustments for screens under 800px height
+
+  The layout now uses viewport-relative units (vh, vw) and clamp() functions to scale proportionally with screen
+  size, ensuring all content fits without scrolling on most screen sizes.
+
+> how you you improve change the landing page to be more impressive and clearer structured as intro page which will 
+be displayed until the presentation is starting 
+
+● I'll redesign the landing page to be more impressive and better structured as a pre-presentation standby screen.
+  Let me create a more professional layout with clearer visual hierarchy.
+
+● Update(presentation-site\src\components\landing\LandingOverlay.tsx)
+  ⎿  Updated presentation-site\src\components\landing\LandingOverlay.tsx with 135 additions and 98 removals      
+       47      return (
+       48        <div className="landing-overlay" role="dialog" aria-modal="true" aria-label="Presentation 
+            standby">
+       49          <div className="landing-overlay__particles" aria-hidden>
+       50 -          {Array.from({ length: 36 }).map((_, index) => {
+       50 +          {Array.from({ length: 48 }).map((_, index) => {
+       51              const seeded = Math.abs(Math.sin((index + 1) * 17.37));
+       52              const phase = Math.abs(Math.cos((index + 4.2) * 11.13));
+       53              const style = {
+     ...
+        61          <div className="landing-overlay__background" aria-hidden>
+        62            <div className="landing-overlay__glow landing-overlay__glow--one" />
+        63            <div className="landing-overlay__glow landing-overlay__glow--two" />
+        64 +          <div className="landing-overlay__glow landing-overlay__glow--three" />
+        65            <div className="landing-overlay__grid" />
+        66          </div>
+        67          <FullScreenCard className="landing-overlay__card glass-panel" enableFullscreen={false}>
+        68 -          <div className="landing-overlay__header">
+        69 -            <span className="landing-overlay__badge">TechTalk AI</span>
+        70 -            <span className="landing-overlay__badge landing-overlay__badge--secondary">Filip 
+           - Frano</span>
+        71 -            <span className="landing-overlay__badge landing-overlay__badge--secondary">Daniel Huber
+           -  </span>
+        72 -            <span className="landing-overlay__time-badge" aria-live="polite">{clockLabel}</span>
+        73 -          </div>
+        74 -          <h1 className="landing-overlay__title">Tech Talk AI</h1>
+        75 -          <div className="landing-overlay__viz">
+        76 -            <div className="landing-overlay__viz-card" role="presentation">
+        77 -              <div className="landing-overlay__viz-header">
+        78 -                <span className="landing-overlay__viz-title">Gradient descent cockpit</span>
+        79 -                <span className="landing-overlay__viz-subtitle">Synthetic housing model 
+           - warm-up</span>
+        68 +          <div className="landing-overlay__hero">
+        69 +            <div className="landing-overlay__hero-content">
+        70 +              <div className="landing-overlay__status-bar">
+        71 +                <span className="landing-overlay__badge landing-overlay__badge--live">● 
+           +  Live Presentation</span>
+        72 +                <span className="landing-overlay__time-badge" aria-live="polite">{clockLabel}</span>
+        73                </div>
+        74 -              <div className="landing-overlay__viz-body">
+        75 -                <svg className="landing-overlay__chart" viewBox="0 0 720 220" aria-hidden>
+        76 -                  <defs>
+        77 -                    <linearGradient id="viz-gradient" x1="0" x2="1" y1="0" y2="1">
+        78 -                      <stop offset="0%" stopColor="rgba(35,230,255,0.85)" />
+        79 -                      <stop offset="100%" stopColor="rgba(255,47,185,0.85)" />
+        80 -                    </linearGradient>
+        81 -                  </defs>
+        82 -                  <path className="landing-overlay__curve-line landing-overlay__curve-line--primary" 
+           - d="M20 40 C 160 120, 320 20, 480 120 S 700 60, 700 60" />
+        83 -                  <path className="landing-overlay__curve-line 
+           - landing-overlay__curve-line--secondary" d="M20 160 C 200 120, 320 210, 520 140 S 700 180, 700 180" 
+           - />
+        84 -                  <path className="landing-overlay__descent" d="M40 40 C 160 30, 300 140, 420 90 S 
+           - 640 60, 700 100" />
+        85 -                  <circle className="landing-overlay__descent-node" cx="40" cy="40" r="6" />
+        86 -                </svg>
+        87 -                <div className="landing-overlay__pulse-field" aria-hidden>
+        88 -                  {Array.from({ length: 12 }).map((_, index) => {
+        89 -                    const base = Math.abs(Math.sin((index + 3) * 9.3));
+        90 -                    const vertical = Math.abs(Math.cos((index + 2.5) * 7.1));
+        91 -                    return (
+        92 -                      <span
+        93 -                        key={`pulse-${index}`}
+        94 -                        className="landing-overlay__pulse"
+        95 -                        style={{
+        96 -                          left: `${(10 + base * 80).toFixed(2)}%`,
+        97 -                          animationDelay: `${(index % 6) * 0.6}s`,
+        98 -                          animationDuration: `${(5.5 + vertical * 2.5).toFixed(2)}s`,
+        99 -                        }}
+       100 -                      />
+       101 -                    );
+       102 -                  })}
+        74 +              <h1 className="landing-overlay__title">
+        75 +                <span className="landing-overlay__title-main">Tech Talk AI</span>
+        76 +                <span className="landing-overlay__subtitle">From Neural Networks to Autonomous 
+           + Agents</span>
+        77 +              </h1>
+        78 +              <div className="landing-overlay__presenters">
+        79 +                <div className="landing-overlay__presenter">
+        80 +                  <div className="landing-overlay__presenter-avatar">FF</div>
+        81 +                  <span className="landing-overlay__presenter-name">Filip Frano</span>
+        82                  </div>
+        83 +                <div className="landing-overlay__presenter">
+        84 +                  <div className="landing-overlay__presenter-avatar">DH</div>
+        85 +                  <span className="landing-overlay__presenter-name">Daniel Huber</span>
+        86 +                </div>
+        87                </div>
+        88 -              <div className="landing-overlay__metrics" role="list">
+        89 -                {telemetryMetrics.map((metric) => (
+        90 -                  <div key={metric.label} className="landing-overlay__metric" role="listitem">
+        91 -                    <div className="landing-overlay__metric-label">
+        92 -                      <span>{metric.label}</span>
+        93 -                      <span className={`landing-overlay__metric-trend 
+           - landing-overlay__metric-trend--${metric.tone}`}>{metric.trend}</span>
+        88 +            </div>
+        89 +            <div className="landing-overlay__viz">
+        90 +              <div className="landing-overlay__viz-card" role="presentation">
+        91 +                <div className="landing-overlay__viz-header">
+        92 +                  <span className="landing-overlay__viz-title">System Status</span>
+        93 +                  <span className="landing-overlay__viz-subtitle">Neural Network Training 
+           + Active</span>
+        94 +                </div>
+        95 +                <div className="landing-overlay__viz-body">
+        96 +                  <svg className="landing-overlay__chart" viewBox="0 0 720 220" aria-hidden>
+        97 +                    <defs>
+        98 +                      <linearGradient id="viz-gradient" x1="0" x2="1" y1="0" y2="1">
+        99 +                        <stop offset="0%" stopColor="rgba(35,230,255,0.85)" />
+       100 +                        <stop offset="100%" stopColor="rgba(255,47,185,0.85)" />
+       101 +                      </linearGradient>
+       102 +                    </defs>
+       103 +                    <path className="landing-overlay__curve-line 
+           + landing-overlay__curve-line--primary" d="M20 40 C 160 120, 320 20, 480 120 S 700 60, 700 60" />
+       104 +                    <path className="landing-overlay__curve-line 
+           + landing-overlay__curve-line--secondary" d="M20 160 C 200 120, 320 210, 520 140 S 700 180, 700 180" 
+           + />
+       105 +                    <path className="landing-overlay__descent" d="M40 40 C 160 30, 300 140, 420 90 S 
+           + 640 60, 700 100" />
+       106 +                    <circle className="landing-overlay__descent-node" cx="40" cy="40" r="6" />
+       107 +                  </svg>
+       108 +                  <div className="landing-overlay__pulse-field" aria-hidden>
+       109 +                    {Array.from({ length: 12 }).map((_, index) => {
+       110 +                      const base = Math.abs(Math.sin((index + 3) * 9.3));
+       111 +                      const vertical = Math.abs(Math.cos((index + 2.5) * 7.1));
+       112 +                      return (
+       113 +                        <span
+       114 +                          key={`pulse-${index}`}
+       115 +                          className="landing-overlay__pulse"
+       116 +                          style={{
+       117 +                            left: `${(10 + base * 80).toFixed(2)}%`,
+       118 +                            animationDelay: `${(index % 6) * 0.6}s`,
+       119 +                            animationDuration: `${(5.5 + vertical * 2.5).toFixed(2)}s`,
+       120 +                          }}
+       121 +                        />
+       122 +                      );
+       123 +                    })}
+       124 +                  </div>
+       125 +                </div>
+       126 +                <div className="landing-overlay__metrics" role="list">
+       127 +                  {telemetryMetrics.map((metric) => (
+       128 +                    <div key={metric.label} className="landing-overlay__metric" role="listitem">
+       129 +                      <div className="landing-overlay__metric-label">
+       130 +                        <span>{metric.label}</span>
+       131 +                        <span className={`landing-overlay__metric-trend 
+           + landing-overlay__metric-trend--${metric.tone}`}>{metric.trend}</span>
+       132 +                      </div>
+       133 +                      <div className="landing-overlay__metric-bar" aria-hidden>
+       134 +                        <div className="landing-overlay__metric-fill" style={{ width: 
+           + `${metric.progress}%` }} />
+       135 +                      </div>
+       136 +                      <span className="landing-overlay__metric-value">{metric.value}</span>
+       137                      </div>
+       138 -                    <div className="landing-overlay__metric-bar" aria-hidden>
+       139 -                      <div className="landing-overlay__metric-fill" style={{ width: 
+           - `${metric.progress}%` }} />
+       140 -                    </div>
+       141 -                    <span className="landing-overlay__metric-value">{metric.value}</span>
+       138 +                  ))}
+       139 +                </div>
+       140 +              </div>
+       141 +            </div>
+       142 +          </div>
+       143 +  
+       144 +          <div className="landing-overlay__content">
+       145 +            <div className="landing-overlay__agenda">
+       146 +              <h2>Presentation Agenda</h2>
+       147 +              <div className="landing-overlay__agenda-grid">
+       148 +                <div className="landing-overlay__agenda-item">
+       149 +                  <div className="landing-overlay__agenda-number">01</div>
+       150 +                  <div className="landing-overlay__agenda-details">
+       151 +                    <h3>History of AI</h3>
+       152 +                    <p className="landing-overlay__agenda-speaker">Filip Frano</p>
+       153                    </div>
+       154 -                ))}
+       154 +                </div>
+       155 +                <div className="landing-overlay__agenda-item">
+       156 +                  <div className="landing-overlay__agenda-number">02</div>
+       157 +                  <div className="landing-overlay__agenda-details">
+       158 +                    <h3>AI Policy Guardrails</h3>
+       159 +                    <p className="landing-overlay__agenda-speaker">Filip Frano</p>
+       160 +                  </div>
+       161 +                </div>
+       162 +                <div className="landing-overlay__agenda-item">
+       163 +                  <div className="landing-overlay__agenda-number">03</div>
+       164 +                  <div className="landing-overlay__agenda-details">
+       165 +                    <h3>Machine Learning Foundations</h3>
+       166 +                    <p className="landing-overlay__agenda-speaker">Daniel Huber</p>
+       167 +                  </div>
+       168 +                </div>
+       169 +                <div className="landing-overlay__agenda-item">
+       170 +                  <div className="landing-overlay__agenda-number">04</div>
+       171 +                  <div className="landing-overlay__agenda-details">
+       172 +                    <h3>Agentic Experimentation Sandbox</h3>
+       173 +                    <p className="landing-overlay__agenda-speaker">Daniel Huber</p>
+       174 +                  </div>
+       175 +                </div>
+       176                </div>
+       177              </div>
+       178 +  
+       179 +            <div className="landing-overlay__footer">
+       180 +              <div className="landing-overlay__cta">
+       181 +                <button
+       182 +                  type="button"
+       183 +                  className="button-primary button-primary--large"
+       184 +                  onClick={onEnterPresentation}
+       185 +                >
+       186 +                  <span>Start Presentation</span>
+       187 +                  <span className="landing-overlay__cta-arrow">→</span>
+       188 +                </button>
+       189 +                <div className="landing-overlay__secondary-actions">
+       190 +                  <button
+       191 +                    type="button"
+       192 +                    className="button-secondary"
+       193 +                    onClick={() => window.open("https://github.com/", "_blank")}
+       194 +                  >
+       195 +                    View Repository
+       196 +                  </button>
+       197 +                  <button
+       198 +                    type="button"
+       199 +                    className="button-secondary"
+       200 +                    onClick={() => window.open("/notebooks", "_blank")}
+       201 +                  >
+       202 +                    Browse Notebooks
+       203 +                  </button>
+       204 +                </div>
+       205 +              </div>
+       206 +              <p className="landing-overlay__hint" aria-live="polite">{hintMessage}</p>
+       207 +            </div>
+       208            </div>
+       209 -          <div className="landing-overlay__agenda">
+       210 -            <h2>Agenda</h2>
+       211 -            <ol>
+       212 -              <li>
+       213 -                <span>History of AI</span>
+       214 -                <span className="landing-overlay__agenda-speaker">Filip Frano</span>
+       215 -              </li>
+       216 -              <li>
+       217 -                <span>AI policy guardrails</span>
+       218 -                <span className="landing-overlay__agenda-speaker">Filip Frano</span>
+       219 -              </li>
+       220 -              <li>
+       221 -                <span>Machine learning foundations</span>
+       222 -                <span className="landing-overlay__agenda-speaker">Daniel Huber</span>
+       223 -              </li>
+       224 -              <li>
+       225 -                <span>Agentic experimentation sandbox</span>
+       226 -                <span className="landing-overlay__agenda-speaker">Daniel Huber</span>
+       227 -              </li>
+       228 -            </ol>
+       229 -          </div>
+       230 -          <div className="landing-overlay__cta">
+       231 -            <button
+       232 -              type="button"
+       233 -              className="button-primary"
+       234 -              onClick={onEnterPresentation}
+       235 -            >
+       236 -              Enter presentation flow
+       237 -            </button>
+       238 -            <button
+       239 -              type="button"
+       240 -              className="button-secondary"
+       241 -              onClick={() => window.open("https://github.com/", "_blank")}
+       242 -            >
+       243 -              View project repo
+       244 -            </button>
+       245 -            <button
+       246 -              type="button"
+       247 -              className="button-secondary"
+       248 -              onClick={() => window.open("/notebooks", "_blank")}
+       249 -            >
+       250 -              Open notebooks hub
+       251 -            </button>
+       252 -          </div>
+       253 -          <p className="landing-overlay__hint" aria-live="polite">{hintMessage}</p>
+       209          </FullScreenCard>
+       210        </div>
+       211      );
+
+● Now let me update the CSS to match the new structure with more impressive styling:
+
+● Update(presentation-site\src\app\globals.css)
+  ⎿  Updated presentation-site\src\app\globals.css with 4 additions and 5 removals
+       408    
+       409    .landing-overlay__card {
+       410      position: relative;
+       411 -    width: min(1080px, 100%);
+       412 -    max-height: 92vh;
+       413 -    padding: clamp(1.5rem, 4vw, 3rem);
+       411 +    width: min(1280px, 95%);
+       412 +    max-height: 94vh;
+       413 +    padding: 0;
+       414      display: flex;
+       415      flex-direction: column;
+       416 -    gap: clamp(0.8rem, 2vw, 1.2rem);
+       417 -    backdrop-filter: blur(18px);
+       416 +    backdrop-filter: blur(24px);
+       417      overflow-y: auto;
+       418      overflow-x: hidden;
+       419    }
+
+● Update(presentation-site\src\app\globals.css)
+  ⎿  Updated presentation-site\src\app\globals.css with 19 additions and 3 removals
+       420    
+       421    
+       422    
+       423 -  .landing-overlay__header {
+       423 +  .landing-overlay__hero {
+       424 +    display: grid;
+       425 +    grid-template-columns: 1fr 1fr;
+       426 +    gap: clamp(2rem, 4vw, 3.5rem);
+       427 +    padding: clamp(2rem, 5vw, 4rem);
+       428 +    padding-bottom: clamp(1.5rem, 3vw, 2.5rem);
+       429 +    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+       430 +  }
+       431 +  
+       432 +  .landing-overlay__hero-content {
+       433      display: flex;
+       434 -    flex-wrap: wrap;
+       434 +    flex-direction: column;
+       435 +    gap: clamp(1.5rem, 3vw, 2.5rem);
+       436 +    justify-content: center;
+       437 +  }
+       438 +  
+       439 +  .landing-overlay__status-bar {
+       440 +    display: flex;
+       441      align-items: center;
+       442 -    gap: 0.75rem;
+       442 +    justify-content: space-between;
+       443 +    gap: 1rem;
+       444    }
+       445    
+       446    .landing-overlay__badge {
+
+● Update(presentation-site\src\app\globals.css)
+  ⎿  Updated presentation-site\src\app\globals.css with 7 additions and 4 removals
+       447      font-size: 0.7rem;
+       448      letter-spacing: 0.3em;
+       449      text-transform: uppercase;
+       450 -    padding: 0.35rem 0.9rem;
+       450 +    padding: 0.45rem 1.1rem;
+       451      border-radius: 999px;
+       452      border: 1px solid rgba(255, 255, 255, 0.2);
+       453      background: rgba(12, 18, 26, 0.6);
+       454 +    white-space: nowrap;
+       455    }
+       456    
+       457 -  .landing-overlay__badge--secondary {
+       458 -    border-color: rgba(255, 47, 185, 0.35);
+       459 -    background: rgba(255, 47, 185, 0.16);
+       457 +  .landing-overlay__badge--live {
+       458 +    border-color: rgba(35, 230, 255, 0.45);
+       459 +    background: rgba(35, 230, 255, 0.12);
+       460 +    color: rgba(35, 230, 255, 0.95);
+       461 +    animation: livePulse 2s ease-in-out infinite;
+       462    }
+       463    
+       464    .landing-overlay__time-badge {
+
+● Update(presentation-site\src\app\globals.css)
+  ⎿  Updated presentation-site\src\app\globals.css with 56 additions and 3 removals                     
+       473    }
+       474    
+       475    .landing-overlay__title {
+       476 -    font-family: var(--font-space-grotesk), var(--font-inter), sans-serif;
+       477 -    font-size: clamp(1.8rem, 4vw, 3rem);
+       478 -    line-height: 1.05;
+       476 +    display: flex;
+       477 +    flex-direction: column;
+       478 +    gap: 0.8rem;
+       479      margin: 0;
+       480    }
+       481    
+       482 +  .landing-overlay__title-main {
+       483 +    font-family: var(--font-space-grotesk), var(--font-inter), sans-serif;
+       484 +    font-size: clamp(2.5rem, 5vw, 4.5rem);
+       485 +    line-height: 1;
+       486 +    font-weight: 700;
+       487 +    background: linear-gradient(135deg, var(--color-accent), var(--color-highlight));
+       488 +    -webkit-background-clip: text;
+       489 +    -webkit-text-fill-color: transparent;
+       490 +    background-clip: text;
+       491 +    animation: titleShine 3s ease-in-out infinite;
+       492 +  }
+       493 +  
+       494 +  .landing-overlay__subtitle {
+       495 +    font-family: var(--font-inter), sans-serif;
+       496 +    font-size: clamp(1rem, 2vw, 1.4rem);
+       497 +    color: var(--color-text-secondary);
+       498 +    font-weight: 400;
+       499 +    line-height: 1.4;
+       500 +  }
+       501 +  
+       502 +  .landing-overlay__presenters {
+       503 +    display: flex;
+       504 +    gap: 1.5rem;
+       505 +    align-items: center;
+       506 +  }
+       507 +  
+       508 +  .landing-overlay__presenter {
+       509 +    display: flex;
+       510 +    align-items: center;
+       511 +    gap: 0.8rem;
+       512 +  }
+       513 +  
+       514 +  .landing-overlay__presenter-avatar {
+       515 +    width: 48px;
+       516 +    height: 48px;
+       517 +    border-radius: 12px;
+       518 +    background: linear-gradient(135deg, rgba(35, 230, 255, 0.25), rgba(255, 47, 185, 0.25));
+       519 +    border: 1px solid rgba(255, 255, 255, 0.2);
+       520 +    display: flex;
+       521 +    align-items: center;
+       522 +    justify-content: center;
+       523 +    font-family: var(--font-space-grotesk), sans-serif;
+       524 +    font-weight: 600;
+       525 +    font-size: 0.95rem;
+       526 +    color: var(--color-text-primary);
+       527 +  }
+       528 +  
+       529 +  .landing-overlay__presenter-name {
+       530 +    font-size: 0.95rem;
+       531 +    color: var(--color-text-primary);
+       532 +    font-weight: 500;
+       533 +  }
+       534 +  
+       535    .landing-overlay__viz {
+       536      width: 100%;
+       537      display: flex;
+
+● Update(presentation-site\src\app\globals.css)
+  ⎿  Updated presentation-site\src\app\globals.css with 1 addition and 2 removals
+       533    }
+       534    
+       535    .landing-overlay__viz {
+       536 -    width: 100%;
+       536      display: flex;
+       537 +    align-items: center;
+       538      justify-content: center;
+       539 -    margin-bottom: 0;
+       539    }
+       540    
+       541    .landing-overlay__viz-card {
+
+● Update(presentation-site\src\app\globals.css)
+  ⎿  Updated presentation-site\src\app\globals.css with 6 additions and 7 removals                       
+       540    
+       541    .landing-overlay__viz-card {
+       542      position: relative;
+       543 -    width: min(100%, 720px);
+       544 -    max-width: 760px;
+       545 -    padding: clamp(1rem, 2vw, 1.5rem);
+       546 -    border-radius: 20px;
+       547 -    background: linear-gradient(160deg, rgba(12, 18, 26, 0.88), rgba(28, 15, 34, 0.82));
+       548 -    border: 1px solid rgba(255, 255, 255, 0.08);
+       549 -    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04), 0 28px 60px rgba(8, 12, 20, 0.45);
+       543 +    width: 100%;
+       544 +    padding: clamp(1.2rem, 2.2vw, 1.8rem);
+       545 +    border-radius: 24px;
+       546 +    background: linear-gradient(160deg, rgba(12, 18, 26, 0.92), rgba(28, 15, 34, 0.88));
+       547 +    border: 1px solid rgba(255, 255, 255, 0.12);
+       548 +    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06), 0 32px 64px rgba(8, 12, 20, 0.5);
+       549      overflow: hidden;
+       550    }
+       551    
+
+● Update(presentation-site\src\app\globals.css)
+  ⎿  Updated presentation-site\src\app\globals.css with 8 additions and 9 removals
+       563    .landing-overlay__viz-header {
+       564      position: relative;
+       565      display: flex;
+       566 -    justify-content: space-between;
+       567 -    align-items: baseline;
+       568 -    flex-wrap: wrap;
+       569 -    gap: 0.6rem;
+       570 -    margin-bottom: 1rem;
+       566 +    flex-direction: column;
+       567 +    gap: 0.4rem;
+       568 +    margin-bottom: 1.2rem;
+       569      z-index: 1;
+       570    }
+       571    
+       572    .landing-overlay__viz-title {
+       573      text-transform: uppercase;
+       574      letter-spacing: 0.32em;
+       575 -    font-size: 0.85rem;
+       576 -    color: rgba(247, 249, 255, 0.78);
+       575 +    font-size: 0.75rem;
+       576 +    color: var(--color-accent);
+       577 +    font-weight: 600;
+       578    }
+       579    
+       580    .landing-overlay__viz-subtitle {
+       581 -    font-size: 0.95rem;
+       582 -    color: rgba(247, 249, 255, 0.64);
+       581 +    font-size: 0.88rem;
+       582 +    color: rgba(247, 249, 255, 0.68);
+       583    }
+       584    
+       585    .landing-overlay__viz-body {
+
+● Now let me update the agenda and content sections:
+
+● Update(presentation-site\src\app\globals.css)
+  ⎿  Updated presentation-site\src\app\globals.css with 80 additions and 30 removals                    
+       733    }
+       734    
+       735    
+       736 +  .landing-overlay__content {
+       737 +    display: flex;
+       738 +    flex-direction: column;
+       739 +    gap: clamp(1.5rem, 3vw, 2.5rem);
+       740 +    padding: clamp(2rem, 4vw, 3rem);
+       741 +    padding-top: clamp(1.5rem, 3vw, 2.5rem);
+       742 +  }
+       743 +  
+       744    .landing-overlay__agenda {
+       745 -    display: grid;
+       746 -    gap: clamp(0.6rem, 1.5vw, 1rem);
+       747 -    padding: clamp(1rem, 2vw, 1.5rem);
+       748 -    border-radius: 20px;
+       749 -    background: linear-gradient(150deg, rgba(12, 18, 26, 0.82), rgba(20, 24, 38, 0.62));
+       750 -    border: 1px solid rgba(255, 255, 255, 0.06);
+       751 -    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+       752 -    margin-top: 0;
+       753 -    margin-bottom: 0;
+       745 +    display: flex;
+       746 +    flex-direction: column;
+       747 +    gap: clamp(1.2rem, 2.5vw, 2rem);
+       748    }
+       749    
+       750    .landing-overlay__agenda h2 {
+       751      margin: 0;
+       752 -    font-size: clamp(0.85rem, 1.6vw, 1.02rem);
+       753 -    letter-spacing: 0.28em;
+       754 -    text-transform: uppercase;
+       755 -    color: rgba(247, 249, 255, 0.78);
+       752 +    font-size: clamp(1.2rem, 2.2vw, 1.8rem);
+       753 +    font-family: var(--font-space-grotesk), sans-serif;
+       754 +    font-weight: 600;
+       755 +    color: var(--color-text-primary);
+       756    }
+       757    
+       758 -  .landing-overlay__agenda ol {
+       759 -    margin: 0;
+       760 -    padding-left: 1.2rem;
+       758 +  .landing-overlay__agenda-grid {
+       759      display: grid;
+       760 -    gap: clamp(0.4rem, 1vw, 0.6rem);
+       761 -    color: rgba(247, 249, 255, 0.9);
+       762 -    list-style: decimal;
+       763 -    list-style-position: inside;
+       760 +    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+       761 +    gap: clamp(1rem, 2vw, 1.5rem);
+       762    }
+       763    
+       764 -  .landing-overlay__agenda li {
+       765 -    font-size: clamp(0.9rem, 1.8vw, 1.05rem);
+       766 -    letter-spacing: 0.02em;
+       764 +  .landing-overlay__agenda-item {
+       765      display: flex;
+       766 -    align-items: baseline;
+       767 -    justify-content: space-between;
+       768 -    gap: 0.8rem;
+       766 +    gap: 1.2rem;
+       767 +    padding: clamp(1.2rem, 2.2vw, 1.8rem);
+       768 +    border-radius: 20px;
+       769 +    background: linear-gradient(150deg, rgba(12, 18, 26, 0.75), rgba(20, 24, 38, 0.55));
+       770 +    border: 1px solid rgba(255, 255, 255, 0.1);
+       771 +    transition: all 0.3s ease;
+       772 +    position: relative;
+       773 +    overflow: hidden;
+       774    }
+       775    
+       776 +  .landing-overlay__agenda-item::before {
+       777 +    content: "";
+       778 +    position: absolute;
+       779 +    inset: 0;
+       780 +    background: linear-gradient(135deg, rgba(35, 230, 255, 0.08), rgba(255, 47, 185, 0.08));
+       781 +    opacity: 0;
+       782 +    transition: opacity 0.3s ease;
+       783 +  }
+       784 +  
+       785 +  .landing-overlay__agenda-item:hover {
+       786 +    border-color: rgba(255, 255, 255, 0.2);
+       787 +    transform: translateY(-2px);
+       788 +    box-shadow: 0 12px 32px rgba(8, 12, 20, 0.4);
+       789 +  }
+       790 +  
+       791 +  .landing-overlay__agenda-item:hover::before {
+       792 +    opacity: 1;
+       793 +  }
+       794 +  
+       795 +  .landing-overlay__agenda-number {
+       796 +    font-family: var(--font-space-grotesk), sans-serif;
+       797 +    font-size: clamp(1.8rem, 3vw, 2.5rem);
+       798 +    font-weight: 700;
+       799 +    background: linear-gradient(135deg, var(--color-accent), var(--color-highlight));
+       800 +    -webkit-background-clip: text;
+       801 +    -webkit-text-fill-color: transparent;
+       802 +    background-clip: text;
+       803 +    line-height: 1;
+       804 +    flex-shrink: 0;
+       805 +    position: relative;
+       806 +    z-index: 1;
+       807 +  }
+       808 +  
+       809 +  .landing-overlay__agenda-details {
+       810 +    display: flex;
+       811 +    flex-direction: column;
+       812 +    gap: 0.5rem;
+       813 +    position: relative;
+       814 +    z-index: 1;
+       815 +  }
+       816 +  
+       817 +  .landing-overlay__agenda-details h3 {
+       818 +    margin: 0;
+       819 +    font-family: var(--font-space-grotesk), sans-serif;
+       820 +    font-size: clamp(1rem, 1.8vw, 1.15rem);
+       821 +    font-weight: 600;
+       822 +    color: var(--color-text-primary);
+       823 +    line-height: 1.3;
+       824 +  }
+       825 +  
+       826    .landing-overlay__agenda-speaker {
+       827 -    font-size: clamp(0.7rem, 1.4vw, 0.85rem);
+       828 -    letter-spacing: 0.24em;
+       827 +    font-size: clamp(0.75rem, 1.4vw, 0.88rem);
+       828 +    letter-spacing: 0.18em;
+       829      text-transform: uppercase;
+       830 -    color: rgba(247, 249, 255, 0.68);
+       831 -    white-space: nowrap;
+       830 +    color: var(--color-text-secondary);
+       831    }
+       832    
+       833    .landing-overlay__cta {
+
+● Update(presentation-site\src\app\globals.css)
+  ⎿  Updated presentation-site\src\app\globals.css with 52 additions and 4 removals        
+       830      color: var(--color-text-secondary);
+       831    }
+       832    
+       833 +  .landing-overlay__footer {
+       834 +    display: flex;
+       835 +    flex-direction: column;
+       836 +    gap: 1.5rem;
+       837 +    align-items: center;
+       838 +    padding-top: clamp(1rem, 2vw, 1.5rem);
+       839 +    border-top: 1px solid rgba(255, 255, 255, 0.06);
+       840 +  }
+       841 +  
+       842    .landing-overlay__cta {
+       843      display: flex;
+       844 -    flex-wrap: wrap;
+       845 -    gap: clamp(0.5rem, 1.2vw, 0.8rem);
+       844 +    flex-direction: column;
+       845      align-items: center;
+       846 +    gap: 1.2rem;
+       847 +    width: 100%;
+       848 +  }
+       849 +  
+       850 +  .button-primary--large {
+       851 +    font-size: clamp(1rem, 1.8vw, 1.15rem);
+       852 +    padding: clamp(1rem, 2vw, 1.3rem) clamp(2.5rem, 4vw, 3.5rem);
+       853 +    display: inline-flex;
+       854 +    align-items: center;
+       855 +    gap: 1rem;
+       856 +    position: relative;
+       857 +    overflow: hidden;
+       858 +  }
+       859 +  
+       860 +  .button-primary--large::before {
+       861 +    content: "";
+       862 +    position: absolute;
+       863 +    inset: 0;
+       864 +    background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), transparent);
+       865 +    opacity: 0;
+       866 +    transition: opacity 0.3s ease;
+       867 +  }
+       868 +  
+       869 +  .button-primary--large:hover::before {
+       870 +    opacity: 1;
+       871 +  }
+       872 +  
+       873 +  .landing-overlay__cta-arrow {
+       874 +    font-size: 1.5em;
+       875 +    transition: transform 0.3s ease;
+       876 +  }
+       877 +  
+       878 +  .button-primary--large:hover .landing-overlay__cta-arrow {
+       879 +    transform: translateX(4px);
+       880 +  }
+       881 +  
+       882 +  .landing-overlay__secondary-actions {
+       883 +    display: flex;
+       884 +    flex-wrap: wrap;
+       885 +    gap: 0.8rem;
+       886      justify-content: center;
+       887    }
+       888    
+       889    .landing-overlay__hint {
+       890 -    font-size: 0.82rem;
+       890 +    font-size: 0.75rem;
+       891      letter-spacing: 0.24em;
+       892      text-transform: uppercase;
+       893 -    color: rgba(247, 249, 255, 0.62);
+       893 +    color: rgba(247, 249, 255, 0.5);
+       894      text-align: center;
+       895    }
+       896    
+
+● Now let me add the animations and a third glow, plus update the responsive styles:
+
+● Update(presentation-site\src\app\globals.css)
+  ⎿  Updated presentation-site\src\app\globals.css with 10 additions                           
+       394      animation-delay: 3.5s;
+       395    }
+       396    
+       397 +  .landing-overlay__glow--three {
+       398 +    top: 50%;
+       399 +    left: 50%;
+       400 +    transform: translate(-50%, -50%);
+       401 +    background: radial-gradient(circle, rgba(255, 200, 87, 0.25), transparent 60%);
+       402 +    animation-delay: 1.8s;
+       403 +    width: 520px;
+       404 +    height: 520px;
+       405 +  }
+       406 +  
+       407    .landing-overlay__grid {
+       408      position: absolute;
+       409      inset: 10%;
+
+● Update(presentation-site\src\app\globals.css)
+  ⎿  Updated presentation-site\src\app\globals.css with 20 additions    
+        999      100% { transform: translate(660px, 50px); opacity: 0; }
+       1000    }
+       1001    
+       1002 +  @keyframes livePulse {
+       1003 +    0%, 100% {
+       1004 +      opacity: 1;
+       1005 +      box-shadow: 0 0 0 0 rgba(35, 230, 255, 0.4);
+       1006 +    }
+       1007 +    50% {
+       1008 +      opacity: 0.85;
+       1009 +      box-shadow: 0 0 0 8px rgba(35, 230, 255, 0);
+       1010 +    }
+       1011 +  }
+       1012 +  
+       1013 +  @keyframes titleShine {
+       1014 +    0%, 100% {
+       1015 +      background-position: 0% 50%;
+       1016 +    }
+       1017 +    50% {
+       1018 +      background-position: 100% 50%;
+       1019 +    }
+       1020 +  }
+       1021 +  
+       1022    /* Responsive adjustments for smaller screens */
+       1023    @media (max-height: 800px) {
+       1024      .landing-overlay__card {
+
+● Update(presentation-site\src\app\globals.css)
+  ⎿  Updated presentation-site\src\app\globals.css with 56 additions and 9 removals
+       1020    }
+       1021    
+       1022    /* Responsive adjustments for smaller screens */
+       1023 +  @media (max-width: 900px) {
+       1024 +    .landing-overlay__hero {
+       1025 +      grid-template-columns: 1fr;
+       1026 +      gap: clamp(1.5rem, 3vw, 2.5rem);
+       1027 +    }
+       1028 +  
+       1029 +    .landing-overlay__agenda-grid {
+       1030 +      grid-template-columns: 1fr;
+       1031 +    }
+       1032 +  }
+       1033 +  
+       1034    @media (max-height: 800px) {
+       1035 -    .landing-overlay__card {
+       1036 -      padding: clamp(1rem, 3vw, 2rem);
+       1037 -      gap: clamp(0.6rem, 1.5vw, 1rem);
+       1035 +    .landing-overlay__hero {
+       1036 +      padding: clamp(1.5rem, 3vw, 2.5rem);
+       1037 +      padding-bottom: clamp(1rem, 2vw, 1.5rem);
+       1038      }
+       1039    
+       1040 -    .landing-overlay__title {
+       1041 -      font-size: clamp(1.5rem, 3.5vw, 2.5rem);
+       1040 +    .landing-overlay__content {
+       1041 +      padding: clamp(1.5rem, 3vw, 2rem);
+       1042 +      padding-top: clamp(1rem, 2vw, 1.5rem);
+       1043 +      gap: clamp(1rem, 2vw, 1.5rem);
+       1044      }
+       1045    
+       1046 +    .landing-overlay__title-main {
+       1047 +      font-size: clamp(2rem, 4vw, 3.5rem);
+       1048 +    }
+       1049 +  
+       1050      .landing-overlay__viz-body {
+       1051        max-height: clamp(140px, 20vh, 180px);
+       1052      }
+     ...
+       1038        max-height: clamp(100px, 15vh, 140px);
+       1039      }
+       1040    
+       1041 -    .landing-overlay__agenda {
+       1042 -      gap: clamp(0.5rem, 1vw, 0.8rem);
+       1043 -      padding: clamp(0.8rem, 1.5vw, 1.2rem);
+       1041 +    .landing-overlay__agenda-grid {
+       1042 +      gap: 1rem;
+       1043      }
+       1044    
+       1045 -    .button-primary,
+       1045 +    .landing-overlay__agenda-item {
+       1046 +      padding: 1rem;
+       1047 +    }
+       1048 +  
+       1049 +    .button-primary--large {
+       1050 +      padding: 0.9rem 2rem;
+       1051 +      font-size: 1rem;
+       1052 +    }
+       1053 +  
+       1054      .button-secondary {
+       1055        padding: 0.7rem 1.4rem;
+       1056        font-size: 0.9rem;
+       1057      }
+       1058    }
+       1059 +  
+       1060 +  @media (max-height: 700px) {
+       1061 +    .landing-overlay__hero {
+       1062 +      gap: 1.5rem;
+       1063 +    }
+       1064 +  
+       1065 +    .landing-overlay__hero-content {
+       1066 +      gap: 1.2rem;
+       1067 +    }
+       1068 +  
+       1069 +    .landing-overlay__presenter-avatar {
+       1070 +      width: 40px;
+       1071 +      height: 40px;
+       1072 +    }
+       1073 +  
+       1074 +    .landing-overlay__agenda h2 {
+       1075 +      font-size: 1.2rem;
+       1076 +    }
+       1077 +  
+       1078 +    .landing-overlay__agenda-grid {
+       1079 +      grid-template-columns: repeat(2, 1fr);
+       1080 +    }
+       1081 +  }
+
+● Now let me fix the title animation to work properly:
+
+● Update(presentation-site\src\app\globals.css)
+  ⎿  Updated presentation-site\src\app\globals.css with 3 additions and 2 removals               
+       494      font-size: clamp(2.5rem, 5vw, 4.5rem);
+       495      line-height: 1;
+       496      font-weight: 700;
+       497 -    background: linear-gradient(135deg, var(--color-accent), var(--color-highlight));
+       497 +    background: linear-gradient(90deg, var(--color-accent), var(--color-highlight)
+           +  , var(--color-accent));
+       498 +    background-size: 200% auto;
+       499      -webkit-background-clip: text;
+       500      -webkit-text-fill-color: transparent;
+       501      background-clip: text;
+       502 -    animation: titleShine 3s ease-in-out infinite;
+       502 +    animation: titleShine 4s ease-in-out infinite;
+       503    }
+       504    
+       505    .landing-overlay__subtitle {
+
+● Perfect! I've completely redesigned the landing page with a much more impressive and professional pre-presentation
+   layout. Here's what's been improved:
+
+  Key Improvements:
+
+  Structure & Layout:
+
+  - Two-column hero section with main content on left and live visualization on right
+  - Grid-based agenda with numbered cards (01-04) that have hover effects
+  - Clear visual hierarchy with dedicated sections for status, title, presenters, and agenda
+  - Cleaner footer with prominent "Start Presentation" button
+
+  Visual Design:
+
+  - Gradient animated title with cyan-to-pink color shift
+  - Live status badge with pulsing animation
+  - Presenter avatars with gradient backgrounds showing initials (FF, DH)
+  - Interactive agenda cards with hover states and gradient overlays
+  - Enhanced visualization card with better contrast and larger arrow on CTA button
+  - Third ambient glow in center for more depth
+
+  Professional Features:
+
+  - "Live Presentation" badge with animated pulse effect
+  - Descriptive subtitle: "From Neural Networks to Autonomous Agents"
+  - Large prominent CTA button with arrow that slides on hover
+  - Modern card-based agenda instead of simple list
+  - Better spacing and typography throughout
+
+  Responsive Design:
+
+  - Stacks to single column on narrow screens (<900px)
+  - Reduces sizing on short screens (<800px, <700px)
+  - Maintains readability across all viewport sizes
+
+  The page now looks like a professional conference standby screen with clear branding, presenter information, and
+  agenda details that will impress the audience before the presentation begins.
+
+> rename "Agentic Experimentation Sandbox" to "Autonomous Agents". the nice animation is showing: Loss
+▼ 0.07
+0.18
+Validation
+▲ 1.2%
+92.4%
+Exploration
+grid search
+active is there maybe topics which would fit better than Exploration, grid search, validation? 
+
+● I'll rename the agenda item and suggest better metrics that fit the AI/ML presentation theme.
+
+● Update(presentation-site\src\components\landing\LandingOverlay.tsx)
+  ⎿  Updated presentation-site\src\components\landing\LandingOverlay.tsx with 3 additions and 3 removals  
+       34    
+       35      const telemetryMetrics = useMemo(
+       36        () => [
+       37 -        { label: "Loss", value: "0.18", trend: "▼ 0.07", progress: 82, tone: "down" },
+       38 -        { label: "Validation", value: "92.4%", trend: "▲ 1.2%", progress: 74, tone: "up" },
+       39 -        { label: "Exploration", value: "active", trend: "grid search
+          -  ", progress: 68, tone: "neutral" },
+       37 +        { label: "Training Loss", value: "0.18", trend: "▼ 0.07", progress: 82, tone: "down" },
+       38 +        { label: "Accuracy", value: "92.4%", trend: "▲ 1.2%", progress: 92, tone: "up" },
+       39 +        { label: "Model State", value: "converging", trend: "epoch 247
+          +  ", progress: 68, tone: "neutral" },
+       40        ],
+       41        [],
+       42      );
+
+● Update(presentation-site\src\components\landing\LandingOverlay.tsx)
+  ⎿  Updated presentation-site\src\components\landing\LandingOverlay.tsx with 1 addition and 1 removal
+       169                  <div className="landing-overlay__agenda-item">
+       170                    <div className="landing-overlay__agenda-number">04</div>
+       171                    <div className="landing-overlay__agenda-details">
+       172 -                    <h3>Agentic Experimentation Sandbox</h3>
+       172 +                    <h3>Autonomous Agents</h3>
+       173                      <p className="landing-overlay__agenda-speaker">Daniel Huber</p>
+       174                    </div>
+       175                  </div>
+
+● Perfect! I've made the changes:
+
+  Updated:
+
+  1. Agenda item renamed: "Agentic Experimentation Sandbox" → "Autonomous Agents"
+  2. Improved metrics that better fit an AI/ML presentation:
+    - "Loss" → "Training Loss" (more specific)
+    - "Validation" → "Accuracy" (clearer for audience, showing 92.4%)
+    - "Exploration / grid search" → "Model State / epoch 247" (shows training progress with "converging" status)
+
+  The new metrics tell a better story: the model is actively training (epoch 247), loss is decreasing (0.18 ▼ 0.07),
+   accuracy is improving (92.4% ▲ 1.2%), and the model state is "converging" - all professional ML training
+  indicators that will resonate with a technical audience.
+
+> the subheader "From Neural Networks to Autonomous Agents" is good but somehow only explains my parts (Daniel 
+Huber). could we create a subheader which also includes the topics from Filip. lik a SubHeader which includes the 
+full agenda 
+
+● I'll create a more comprehensive subheader that encompasses all presentation topics from both presenters.
+
+● Update(presentation-site\src\components\landing\LandingOverlay.tsx)
+  ⎿  Updated presentation-site\src\components\landing\LandingOverlay.tsx with 1 addition and 1 removal
+       73                </div>
+       74                <h1 className="landing-overlay__title">
+       75                  <span className="landing-overlay__title-main">Tech Talk AI</span>
+       76 -                <span className="landing-overlay__subtitle">From Neural Networks to
+          -   Autonomous Agents</span>
+       76 +                <span className="landing-overlay__subtitle">History, Policy, Foundations &
+          +   Autonomous Agents</span>
+       77                </h1>
+       78                <div className="landing-overlay__presenters">
+       79                  <div className="landing-overlay__presenter">
+
+● Perfect! I've updated the subheader to "History, Policy, Foundations & Autonomous Agents" which now covers all
+  four agenda topics:
+
+  - History (Filip's AI history topic)
+  - Policy (Filip's AI policy guardrails)
+  - Foundations (Daniel's ML foundations)
+  - Autonomous Agents (Daniel's agents topic)
+
+  This creates a clear progression and includes both presenters' contributions equally.
+
+> remove the Press Enter to begin because during presenation we are maybe nervous and accidentally click enter. 
+better only close landing page on pressing the Button start presenation 
+
+● I'll remove the "Press Enter to begin" hint and disable the Enter key functionality.
+
+● Update(presentation-site\src\components\landing\LandingOverlay.tsx)
+  ⎿  Updated presentation-site\src\components\landing\LandingOverlay.tsx with 1 removal                    
+       42      );
+       43    
+       44      const clockLabel = clock ? `Zurich · ${clock}` : "Zurich · --:--:--";
+       45 -    const hintMessage = "Press Enter to begin";
+       45    
+       46      return (
+       47        <div className="landing-overlay" role="dialog" aria-modal="true" aria-label="Presentation 
+            standby">
+
+● Update(presentation-site\src\components\landing\LandingOverlay.tsx)
+  ⎿  Updated presentation-site\src\components\landing\LandingOverlay.tsx with 1 removal            
+       202                    </button>
+       203                  </div>
+       204                </div>
+       205 -              <p className="landing-overlay__hint" aria-live="polite">{hintMessage}</p>
+       205              </div>
+       206            </div>
+       207          </FullScreenCard>
+
+● Now let me check the LandingExperience component to remove the Enter key handler:
+
+● Read(presentation-site\src\components\landing\LandingExperience.tsx)
+  ⎿  Read 57 lines (ctrl+o to expand)
+
+● Update(presentation-site\src\components\landing\LandingExperience.tsx)
+  ⎿  Updated presentation-site\src\components\landing\LandingExperience.tsx with 12 removals
+       33        return () => window.clearTimeout(timeout);
+       34      }, [startTime]);
+       35    
+       36 -    useEffect(() => {
+       37 -      const handler = (event: KeyboardEvent) => {
+       38 -        if (event.key === "Enter") {
+       39 -          event.preventDefault();
+       40 -          setShowOverlay(false);
+       41 -        }
+       42 -      };
+       43 -  
+       44 -      window.addEventListener("keydown", handler);
+       45 -      return () => window.removeEventListener("keydown", handler);
+       46 -    }, []);
+       47 -  
+       36      return (
+       37        <>
+       38          {showOverlay ? (
+
+● Perfect! I've removed:
+  1. The "Press Enter to begin" hint text from the UI
+  2. The Enter key event listener that would close the overlay
+
+  Now the landing page can only be closed by clicking the "Start Presentation" button, preventing any accidental
+  dismissal during the presentation.
+
+> 3 
+  ⎿  Interrupted · What should Claude do instead?
+
+> the page behind the landing page. What do you think is best? we have the option to create powerpoint presenations 
+or put everyting in the webpage. for my part foundations and agents I will use additionally jupyter notebooks and 
+maybe also LangGraph Studio to visizalize and present. Should we keep the webside simple and reference locations of 
+powerpoint presentations, jupyternotebooks and so on. or really trying to integrate the content into the webside? 
+
+● Great question! Based on your setup and the existing codebase, here's my recommendation:
+
+  Recommended Approach: Hybrid Integration
+
+  Keep the interactive elements in the website, reference external tools for deep dives
+
+  Why this approach:
+
+  1. Best of both worlds
+    - Website provides the narrative flow and key concepts
+    - Jupyter notebooks for hands-on code/data exploration
+    - LangGraph Studio for live agent visualization
+    - No need for PowerPoint at all
+  2. Your current architecture already supports this:
+    - The website has chapter pages (/history, /neural, /agents, /policies)
+    - Built-in notebook launcher components
+    - Interactive visualizations (gradient descent, neural training, etc.)
+  3. Workflow advantages:
+    - Start on website: Present concepts with clean visuals
+    - Switch to Jupyter: "Let me show you the actual code..." (opens in new tab)
+    - Demo LangGraph Studio: Live agent execution
+    - Return to website: Continue the narrative
+
+  Suggested Structure:
+
+  Landing Page (pre-presentation standby)
+    ↓
+  Chapter 01: History (Filip) - Website only
+    - Timeline visualization
+    - Key milestones
+
+  Chapter 02: AI Policy (Filip) - Website only
+    - Policy frameworks
+    - Guardrails explanation
+
+  Chapter 03: ML Foundations (Daniel) - Website + Notebooks
+    - Website: Core concepts, math, visualizations
+    - Button: "Open Gradient Descent Notebook" → Jupyter
+    - Button: "Open Housing Regression Notebook" → Jupyter
+
+  Chapter 04: Autonomous Agents (Daniel) - Website + Studio
+    - Website: Agent architecture explanation
+    - Button: "Launch Pendulum Demo" → LangGraph Studio
+    - Button: "Open Agent Notebook" → Jupyter
+
+  Benefits:
+
+  - ✅ No context switching for theory
+  - ✅ Seamless transitions to live code
+  - ✅ Audience can replay everything after the talk
+  - ✅ Professional look - no PowerPoint needed
+  - ✅ Interactive demos beat static slides
+
+  What to avoid:
+
+  - ❌ PowerPoint - redundant and breaks flow
+  - ❌ Embedding full notebooks in web - too cluttered
+  - ❌ Recreating everything in web - waste of time
+
+  Bottom line: Use the website as your main presentation layer with clear "Launch X" buttons to jump into
+  Jupyter/LangGraph when you need to show code/live demos. The audience gets the best experience and can revisit
+  everything afterward.
+
+  What do you think? Should we enhance the chapter pages with better notebook integration and demo launch buttons?
+
+
+
+
