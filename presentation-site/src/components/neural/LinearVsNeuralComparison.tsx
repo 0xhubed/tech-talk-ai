@@ -248,7 +248,7 @@ export function LinearVsNeuralComparison() {
 
       <div className="bg-[rgba(35,230,255,0.08)] border border-[rgba(35,230,255,0.3)] rounded-lg p-4">
         <p className="text-sm text-[color:var(--color-text-secondary)]">
-          💡 Linear regression works for straight-line relationships. Neural networks learn curves and complex patterns!
+          Linear regression works for straight-line relationships. Neural networks learn curves and complex patterns!
           {datasetType === "linear"
             ? " Both models perform similarly on linear data."
             : " Notice how the neural network fits the non-linear pattern much better."}

@@ -285,7 +285,7 @@ export function LearningRateComparison() {
       {/* Summary table */}
       <div className="bg-[rgba(35,230,255,0.08)] border border-[rgba(35,230,255,0.3)] rounded-lg p-4">
         <h4 className="text-sm font-semibold text-[color:var(--color-text-primary)] mb-3">
-          📊 Comparison Summary
+          Comparison Summary
         </h4>
         <p className="text-xs text-[color:var(--color-text-secondary)] mb-3 italic">
           Note: Fewer steps doesn&apos;t always mean better! Look for smooth, stable convergence.
@@ -333,11 +333,11 @@ export function LearningRateComparison() {
                   </td>
                   <td className="py-2">
                     {subplot.converged ? (
-                      <span className="text-[rgba(34,197,94,1)]">Converged ✅</span>
+                      <span className="text-[rgba(34,197,94,1)]">Converged</span>
                     ) : subplot.diverged ? (
-                      <span className="text-[rgba(220,38,38,1)]">Diverged ❌</span>
+                      <span className="text-[rgba(220,38,38,1)]">Diverged</span>
                     ) : (
-                      <span className="text-[rgba(251,191,36,1)]">Slow ⏱️</span>
+                      <span className="text-[rgba(251,191,36,1)]">Slow</span>
                     )}
                   </td>
                 </tr>
@@ -351,7 +351,7 @@ export function LearningRateComparison() {
       <div className="grid md:grid-cols-3 gap-4">
         <div className="bg-[rgba(251,191,36,0.08)] border border-[rgba(251,191,36,0.3)] rounded-lg p-4">
           <h4 className="text-sm font-semibold text-[color:var(--color-text-primary)] mb-2">
-            🐌 Too Small (α = 0.01)
+            Too Small (α = 0.01)
           </h4>
           <p className="text-xs text-[color:var(--color-text-secondary)]">
             Takes tiny steps. Converges <strong>eventually</strong>, but needs many iterations.
@@ -361,7 +361,7 @@ export function LearningRateComparison() {
 
         <div className="bg-[rgba(34,197,94,0.08)] border border-[rgba(34,197,94,0.3)] rounded-lg p-4">
           <h4 className="text-sm font-semibold text-[color:var(--color-text-primary)] mb-2">
-            ✅ Optimal (α = 0.15)
+            Optimal (α = 0.15)
           </h4>
           <p className="text-xs text-[color:var(--color-text-secondary)]">
             Balances speed and stability. Converges quickly in ~25 steps. This is the{" "}
@@ -371,7 +371,7 @@ export function LearningRateComparison() {
 
         <div className="bg-[rgba(220,38,38,0.08)] border border-[rgba(220,38,38,0.3)] rounded-lg p-4">
           <h4 className="text-sm font-semibold text-[color:var(--color-text-primary)] mb-2">
-            ⚠️ Too Large (α = 0.95)
+            Too Large (α = 0.95)
           </h4>
           <p className="text-xs text-[color:var(--color-text-secondary)]">
             Massively overshoots the minimum and <strong>zigzags wildly</strong> back and forth. On the
@@ -383,7 +383,7 @@ export function LearningRateComparison() {
       {/* Practical implications */}
       <div className="bg-[rgba(255,200,87,0.08)] border border-[rgba(255,200,87,0.3)] rounded-lg p-4">
         <h4 className="text-sm font-semibold text-[color:var(--color-text-primary)] mb-2">
-          🎯 Practical Implications
+          Practical Implications
         </h4>
         <ul className="text-sm text-[color:var(--color-text-secondary)] space-y-1">
           <li>

@@ -301,7 +301,7 @@ export function ErrorBreakdownVisualizer() {
       {/* Explanation */}
       <div className="bg-[rgba(35,230,255,0.08)] border border-[rgba(35,230,255,0.3)] rounded-lg p-4">
         <h4 className="text-sm font-semibold text-[color:var(--color-text-primary)] mb-2">
-          💡 Why Square Errors?
+          Why Square Errors?
         </h4>
         <ul className="text-sm text-[color:var(--color-text-secondary)] space-y-1">
           <li>• Larger errors penalized exponentially more than small errors</li>

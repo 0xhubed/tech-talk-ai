@@ -289,10 +289,10 @@ export function DerivativeExplorer1D() {
             <div className="mt-3 p-2 bg-[rgba(12,18,26,0.4)] rounded">
               <p className="text-xs text-[color:var(--color-text-secondary)]">
                 {currentSlope > 0.01
-                  ? "✅ Positive slope → Function increasing → Go left to decrease"
+                  ? "Positive slope → Function increasing → Go left to decrease"
                   : currentSlope < -0.01
-                    ? "✅ Negative slope → Function decreasing → Go right to decrease"
-                    : "🎯 Zero slope → At minimum!"}
+                    ? "Negative slope → Function decreasing → Go right to decrease"
+                    : "Zero slope → At minimum!"}
               </p>
             </div>
           </div>
@@ -367,7 +367,7 @@ export function DerivativeExplorer1D() {
       {/* Key insight */}
       <div className="bg-[rgba(255,200,87,0.08)] border border-[rgba(255,200,87,0.3)] rounded-lg p-4">
         <h4 className="text-sm font-semibold text-[color:var(--color-text-primary)] mb-2">
-          💡 Key Insight: Derivative = Direction to Move
+          Key Insight: Derivative = Direction to Move
         </h4>
         <p className="text-sm text-[color:var(--color-text-secondary)]">
           The derivative tells us the slope. Since we want to go <strong>downhill</strong> (minimize

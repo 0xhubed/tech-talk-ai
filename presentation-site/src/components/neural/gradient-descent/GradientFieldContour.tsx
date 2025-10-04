@@ -395,7 +395,7 @@ export function GradientFieldContour() {
       <div className="grid md:grid-cols-2 gap-4">
         <div className="bg-[rgba(255,200,87,0.08)] border border-[rgba(255,200,87,0.3)] rounded-lg p-4">
           <h4 className="text-sm font-semibold text-[color:var(--color-text-primary)] mb-2">
-            🧭 Reading the Map
+            Reading the Map
           </h4>
           <ul className="text-sm text-[color:var(--color-text-secondary)] space-y-1">
             <li>• Contour lines = places with same cost (like elevation on a map)</li>
@@ -407,7 +407,7 @@ export function GradientFieldContour() {
 
         <div className="bg-[rgba(35,230,255,0.08)] border border-[rgba(35,230,255,0.3)] rounded-lg p-4">
           <h4 className="text-sm font-semibold text-[color:var(--color-text-primary)] mb-2">
-            ⬇️ Why Negative Gradient?
+            Why Negative Gradient?
           </h4>
           <p className="text-sm text-[color:var(--color-text-secondary)]">
             Gradient ∇f points toward steepest <strong>increase</strong> in cost. Since we want to{" "}

@@ -320,7 +320,7 @@ export function LinearRegressionComplete() {
 
             <div className="bg-[rgba(35,230,255,0.08)] border border-[rgba(35,230,255,0.3)] rounded-lg p-4">
               <p className="text-sm text-[color:var(--color-text-secondary)]">
-                💡 <strong className="text-[color:var(--color-text-primary)]">Try the controls:</strong>{" "}
+                <strong className="text-[color:var(--color-text-primary)]">Try the controls:</strong>{" "}
                 Toggle "Show Errors" to see how far each point is from the line. Toggle "Network View" to see
                 this as a single-neuron neural network.
               </p>

@@ -92,7 +92,7 @@ export function PartialDerivativeBreakdown() {
       {/* What is a partial derivative? */}
       <div className="bg-[rgba(63,94,251,0.08)] border border-[rgba(63,94,251,0.3)] rounded-lg p-5">
         <h4 className="text-sm font-semibold text-[color:var(--color-text-primary)] mb-3">
-          💡 What is a Partial Derivative?
+          What is a Partial Derivative?
         </h4>
         <p className="text-sm text-[color:var(--color-text-secondary)] mb-4">
           A partial derivative measures how the function changes when we change{" "}
@@ -137,7 +137,7 @@ export function PartialDerivativeBreakdown() {
       {/* Gradient vector anatomy */}
       <div className="bg-[rgba(34,197,94,0.08)] border border-[rgba(34,197,94,0.3)] rounded-lg p-5">
         <h4 className="text-sm font-semibold text-[color:var(--color-text-primary)] mb-3">
-          🧭 Gradient Vector Anatomy
+          Gradient Vector Anatomy
         </h4>
 
         <div className="space-y-4">
@@ -182,7 +182,7 @@ export function PartialDerivativeBreakdown() {
           <div className="grid md:grid-cols-2 gap-3">
             <div className="bg-[rgba(12,18,26,0.6)] rounded-lg p-3">
               <div className="text-xs font-semibold text-[color:var(--color-text-primary)] mb-2">
-                📈 Meaning of Components
+                Meaning of Components
               </div>
               <div className="text-xs text-[color:var(--color-text-secondary)] space-y-1">
                 <div>
@@ -200,7 +200,7 @@ export function PartialDerivativeBreakdown() {
 
             <div className="bg-[rgba(12,18,26,0.6)] rounded-lg p-3">
               <div className="text-xs font-semibold text-[color:var(--color-text-primary)] mb-2">
-                🎯 Vector Properties
+                Vector Properties
               </div>
               <div className="text-xs text-[color:var(--color-text-secondary)] space-y-1">
                 <div>
@@ -224,7 +224,7 @@ export function PartialDerivativeBreakdown() {
       {/* Gradient descent update */}
       <div className="bg-[rgba(255,200,87,0.08)] border border-[rgba(255,200,87,0.3)] rounded-lg p-5">
         <h4 className="text-sm font-semibold text-[color:var(--color-text-primary)] mb-3">
-          ⬇️ Gradient Descent Update Rule
+          Gradient Descent Update Rule
         </h4>
 
         <div className="space-y-3">
@@ -270,7 +270,7 @@ export function PartialDerivativeBreakdown() {
       {/* Key takeaways */}
       <div className="bg-[rgba(63,94,251,0.08)] border border-[rgba(63,94,251,0.3)] rounded-lg p-4">
         <h4 className="text-sm font-semibold text-[color:var(--color-text-primary)] mb-2">
-          📝 Key Takeaways
+          Key Takeaways
         </h4>
         <ul className="text-sm text-[color:var(--color-text-secondary)] space-y-1">
           <li>
