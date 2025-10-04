@@ -502,6 +502,14 @@ main {
   animation: titleShine 4s ease-in-out infinite;
 }
 
+.landing-overlay__title-company {
+  font-family: var(--font-space-grotesk), var(--font-inter), sans-serif;
+  font-size: clamp(2.5rem, 5vw, 4.5rem);
+  line-height: 1;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+}
+
 .landing-overlay__subtitle {
   font-family: var(--font-inter), sans-serif;
   font-size: clamp(1rem, 2vw, 1.4rem);

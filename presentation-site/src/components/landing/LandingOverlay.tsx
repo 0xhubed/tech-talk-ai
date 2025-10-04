@@ -66,6 +66,7 @@ export function LandingOverlay({ onEnterPresentation }: LandingOverlayProps) {
       <FullScreenCard className="landing-overlay__card glass-panel" enableFullscreen={false}>
         <div className="landing-overlay__hero">
           <div className="landing-overlay__hero-content">
+            <span className="landing-overlay__title-company" style={{ marginBottom: '1rem' }}>LEONTEQ</span>
             <div className="landing-overlay__status-bar">
               <span className="landing-overlay__badge landing-overlay__badge--live">● Live Presentation</span>
               <span className="landing-overlay__time-badge" aria-live="polite">{clockLabel}</span>

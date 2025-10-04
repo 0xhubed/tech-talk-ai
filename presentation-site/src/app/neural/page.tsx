@@ -1,13 +1,18 @@
 import { ChapterLayout } from "@/components/layout/ChapterLayout";
 import { DiscoveryDemoSection } from "@/components/neural/DiscoveryDemoSection";
-import { LinearRegressionIntro } from "@/components/neural/LinearRegressionIntro";
+import { LinearRegressionComplete } from "@/components/neural/LinearRegressionComplete";
 import { LinearRegressionExplorer } from "@/components/neural/LinearRegressionExplorer";
 import { CostFunctionVisualization } from "@/components/neural/CostFunctionVisualization";
+import { CostFunctionDualPanel } from "@/components/neural/cost-function/CostFunctionDualPanel";
+import { ErrorBreakdownVisualizer } from "@/components/neural/cost-function/ErrorBreakdownVisualizer";
+import { DerivativeExplorer1D } from "@/components/neural/gradient-descent/DerivativeExplorer1D";
+import { GradientFieldContour } from "@/components/neural/gradient-descent/GradientFieldContour";
+import { PartialDerivativeBreakdown } from "@/components/neural/gradient-descent/PartialDerivativeBreakdown";
+import { LearningRateComparison } from "@/components/neural/gradient-descent/LearningRateComparison";
 import { GradientDescentExplorer } from "@/components/neural/GradientDescentExplorer";
 import { TrainingPipelineDemo } from "@/components/neural/TrainingPipelineDemo";
 import { LinearVsNeuralComparison } from "@/components/neural/LinearVsNeuralComparison";
-import { TransformersPreview } from "@/components/neural/TransformersPreview";
-import { ArchitectureRoadmap } from "@/components/neural/ArchitectureRoadmap";
+import { ArchitectureEvolution } from "@/components/neural/ArchitectureEvolution";
 import { NotebookLauncher } from "@/components/neural/NotebookLauncher";
 import { getChapterDefinition } from "@/lib/sections";
 
@@ -19,8 +24,8 @@ export default function NeuralPage() {
       {/* Opening: Discovery Demo */}
       <DiscoveryDemoSection />
 
-      {/* Introduction: What is Linear Regression */}
-      <LinearRegressionIntro />
+      {/* What is Linear Regression - Merged comprehensive section */}
+      <LinearRegressionComplete />
 
       {/* Core Concept 1: Model Representation */}
       <section id="model-representation" className="section-boundary">
@@ -55,15 +60,101 @@ export default function NeuralPage() {
           <div className="mb-8">
             <span className="badge">Step 2</span>
             <h2 className="section-heading mt-4">
-              Cost Function: Measuring Prediction Error
+              Cost Function: The Model&apos;s Report Card
             </h2>
             <p className="section-body">
-              See how cost changes with different parameters.
+              Every prediction our model makes is either too high or too low. The cost function
+              aggregates all these errors into a single number that tells us: &ldquo;How wrong is the model?&rdquo;
+              Our goal: make this number as small as possible.
             </p>
           </div>
 
+          {/* Key questions callout */}
+          <div className="mb-8 bg-[rgba(35,230,255,0.08)] border border-[rgba(35,230,255,0.3)] rounded-lg p-6">
+            <h3 className="text-lg font-semibold text-[color:var(--color-text-primary)] mb-3">
+              Key Questions We&apos;ll Answer:
+            </h3>
+            <ul className="space-y-2 text-[color:var(--color-text-secondary)]">
+              <li className="flex items-start gap-2">
+                <span className="text-[rgba(255,200,87,1)] mt-1">•</span>
+                <span>How do we measure &ldquo;wrongness&rdquo;? (MSE formula)</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-[rgba(255,200,87,1)] mt-1">•</span>
+                <span>Why square the errors instead of just absolute values?</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-[rgba(255,200,87,1)] mt-1">•</span>
+                <span>What does the cost landscape look like?</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-[rgba(255,200,87,1)] mt-1">•</span>
+                <span>How does this prepare us for optimization?</span>
+              </li>
+            </ul>
+          </div>
+
+          {/* Interactive Dual Panel Explorer */}
           <div className="mb-8">
-            <CostFunctionVisualization />
+            <CostFunctionDualPanel />
+          </div>
+
+          {/* Error Breakdown */}
+          <div className="mb-8">
+            <ErrorBreakdownVisualizer />
+          </div>
+
+          {/* Original visualization for reference */}
+          <div className="mb-8">
+            <details className="glass-panel p-6">
+              <summary className="cursor-pointer text-lg font-semibold text-[color:var(--color-text-primary)] mb-4">
+                Additional: Classic Cost Surface View
+              </summary>
+              <CostFunctionVisualization />
+            </details>
+          </div>
+
+          {/* Key insights callouts */}
+          <div className="grid md:grid-cols-2 gap-6 mb-8">
+            <div className="bg-[rgba(35,230,255,0.08)] border border-[rgba(35,230,255,0.3)] rounded-lg p-5">
+              <h4 className="text-sm font-semibold text-[color:var(--color-text-primary)] mb-3">
+                📊 Reading the Cost Surface
+              </h4>
+              <ul className="text-sm text-[color:var(--color-text-secondary)] space-y-2">
+                <li className="flex items-start gap-2">
+                  <span className="text-[rgba(34,197,94,1)]">✅</span>
+                  <span>Bowl shape = convex = single global minimum</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span>•</span>
+                  <span>Steep sides = cost changes rapidly with parameter changes</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span>•</span>
+                  <span>Flat bottom = optimal region (many w, b pairs are equally good)</span>
+                </li>
+              </ul>
+            </div>
+
+            <div className="bg-[rgba(34,197,94,0.08)] border border-[rgba(34,197,94,0.3)] rounded-lg p-5">
+              <h4 className="text-sm font-semibold text-[color:var(--color-text-primary)] mb-3">
+                🎯 Optimization Preview
+              </h4>
+              <ul className="text-sm text-[color:var(--color-text-secondary)] space-y-2">
+                <li className="flex items-start gap-2">
+                  <span className="text-[rgba(34,197,94,1)]">✅</span>
+                  <span>Convex shape means gradient descent will always find the optimal solution</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span>•</span>
+                  <span>No local minima to get stuck in</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span>•</span>
+                  <span>Smooth surface = we can use calculus to find the direction to move</span>
+                </li>
+              </ul>
+            </div>
           </div>
 
           <NotebookLauncher
@@ -82,15 +173,127 @@ export default function NeuralPage() {
           <div className="mb-8">
             <span className="badge">Step 3</span>
             <h2 className="section-heading mt-4">
-              Gradient Descent: Finding the Minimum
+              Gradient Descent: Following the Slope Downhill
             </h2>
             <p className="section-body">
-              Watch the algorithm navigate to the optimal parameters.
+              We know the cost function landscape. We know the optimal parameters exist at the minimum.
+              But how do we <em>find</em> them? Gradient descent uses calculus to compute the
+              &ldquo;downhill direction&rdquo; at every point, then takes small steps until reaching the bottom.
             </p>
           </div>
 
+          {/* Key questions callout */}
+          <div className="mb-8 bg-[rgba(35,230,255,0.08)] border border-[rgba(35,230,255,0.3)] rounded-lg p-6">
+            <h3 className="text-lg font-semibold text-[color:var(--color-text-primary)] mb-3">
+              Key Questions We&apos;ll Answer:
+            </h3>
+            <ul className="space-y-2 text-[color:var(--color-text-secondary)]">
+              <li className="flex items-start gap-2">
+                <span className="text-[rgba(255,200,87,1)] mt-1">•</span>
+                <span>What is a derivative and why does it point &ldquo;uphill&rdquo;?</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-[rgba(255,200,87,1)] mt-1">•</span>
+                <span>How do we use derivatives to find which way to move?</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-[rgba(255,200,87,1)] mt-1">•</span>
+                <span>What is a gradient in 2D/3D?</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-[rgba(255,200,87,1)] mt-1">•</span>
+                <span>Why do we move <em>opposite</em> to the gradient?</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-[rgba(255,200,87,1)] mt-1">•</span>
+                <span>How does learning rate affect convergence?</span>
+              </li>
+            </ul>
+          </div>
+
+          {/* 1D Derivative Explorer */}
           <div className="mb-8">
-            <GradientDescentExplorer />
+            <DerivativeExplorer1D />
+          </div>
+
+          {/* Partial Derivative Breakdown */}
+          <div className="mb-8">
+            <PartialDerivativeBreakdown />
+          </div>
+
+          {/* 2D Contour with Gradient Field */}
+          <div className="mb-8">
+            <GradientFieldContour />
+          </div>
+
+          {/* Learning Rate Comparison */}
+          <div className="mb-8">
+            <LearningRateComparison />
+          </div>
+
+          {/* Original 3D Explorer */}
+          <div className="mb-8">
+            <details className="glass-panel p-6" open>
+              <summary className="cursor-pointer text-lg font-semibold text-[color:var(--color-text-primary)] mb-4">
+                Interactive 3D Descent Path Explorer
+              </summary>
+              <GradientDescentExplorer />
+            </details>
+          </div>
+
+          {/* Key insights callouts */}
+          <div className="grid md:grid-cols-2 gap-6 mb-8">
+            <div className="bg-[rgba(35,230,255,0.08)] border border-[rgba(35,230,255,0.3)] rounded-lg p-5">
+              <h4 className="text-sm font-semibold text-[color:var(--color-text-primary)] mb-3">
+                💡 Derivative = Slope
+              </h4>
+              <ul className="text-sm text-[color:var(--color-text-secondary)] space-y-2">
+                <li>• The derivative at a point tells you the slope of the tangent line</li>
+                <li>• Positive slope → function increasing → go left to decrease</li>
+                <li>• Negative slope → function decreasing → go right to decrease</li>
+                <li>• Zero slope → flat (minimum, maximum, or saddle point)</li>
+              </ul>
+            </div>
+
+            <div className="bg-[rgba(34,197,94,0.08)] border border-[rgba(34,197,94,0.3)] rounded-lg p-5">
+              <h4 className="text-sm font-semibold text-[color:var(--color-text-primary)] mb-3">
+                🧭 Gradient = Multi-Dimensional Slope
+              </h4>
+              <ul className="text-sm text-[color:var(--color-text-secondary)] space-y-2">
+                <li>• In 2D/3D, we have multiple directions to move</li>
+                <li>• The gradient is a <em>vector</em> pointing in the steepest uphill direction</li>
+                <li>• Each component is a partial derivative (∂f/∂x, ∂f/∂y)</li>
+                <li>• Magnitude = steepness, Direction = uphill</li>
+              </ul>
+            </div>
+
+            <div className="bg-[rgba(255,200,87,0.08)] border border-[rgba(255,200,87,0.3)] rounded-lg p-5">
+              <h4 className="text-sm font-semibold text-[color:var(--color-text-primary)] mb-3">
+                ⬇️ Why Negative Gradient?
+              </h4>
+              <p className="text-sm text-[color:var(--color-text-secondary)]">
+                Since gradient points uphill (toward higher cost), negative gradient points downhill
+                (toward lower cost). That&apos;s exactly where we want to go to minimize the cost
+                function! This is why the update rule has a minus sign.
+              </p>
+            </div>
+
+            <div className="bg-[rgba(63,94,251,0.08)] border border-[rgba(63,94,251,0.3)] rounded-lg p-5">
+              <h4 className="text-sm font-semibold text-[color:var(--color-text-primary)] mb-3">
+                🎯 The Update Rule
+              </h4>
+              <div className="text-sm text-[color:var(--color-text-secondary)] space-y-2">
+                <div className="font-mono bg-[rgba(12,18,26,0.6)] p-2 rounded">
+                  θ_new = θ_old - α·∇f(θ)
+                </div>
+                <ul className="space-y-1">
+                  <li>• θ: parameters (w, b, or x, y)</li>
+                  <li>• α: learning rate (step size)</li>
+                  <li>• ∇f: gradient (direction to move)</li>
+                  <li>• Minus sign: go downhill (opposite of gradient)</li>
+                </ul>
+              </div>
+            </div>
           </div>
 
           <NotebookLauncher
@@ -149,11 +352,8 @@ export default function NeuralPage() {
         </div>
       </section>
 
-      {/* Transformers Preview */}
-      <TransformersPreview />
-
-      {/* Architecture Roadmap */}
-      <ArchitectureRoadmap />
+      {/* Architecture Evolution - Merged comprehensive section */}
+      <ArchitectureEvolution />
 
       {/* Closing Notes */}
       <section id="neural-notes" className="section-boundary">

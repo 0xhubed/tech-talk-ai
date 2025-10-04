@@ -6,7 +6,8 @@
       "Bash(git commit:*)",
       "Read(//c/projects/**)",
       "Bash(npm run dev:*)",
-      "Bash(jupyter nbconvert:*)"
+      "Bash(jupyter nbconvert:*)",
+      "Bash(npm run build:*)"
     ],
     "deny": [],
     "ask": []

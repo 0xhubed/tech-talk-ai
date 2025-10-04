@@ -1,5 +1,10 @@
 export type ChapterId = "history" | "policies" | "neural" | "agents";
 
+export type AgendaItem = {
+  label: string;
+  description: string;
+};
+
 export type ChapterSectionDefinition = {
   id: string;
   title: string;

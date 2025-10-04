@@ -13,8 +13,9 @@ export default function Home() {
       <header className="relative z-10 mx-auto flex w-full max-w-[var(--max-width)] items-center justify-between px-6 py-8 lg:px-8">
         <div className="flex items-center gap-3">
           <div className="h-11 w-11 rounded-2xl border border-[rgba(255,255,255,0.18)] bg-[rgba(255,255,255,0.06)] shadow-[0_12px_32px_rgba(8,12,20,0.45)]" />
-          <div>
-            <p className="text-xs uppercase tracking-[0.32em] text-[color:var(--color-text-secondary)]">Leonteq Tech Talk AI</p>
+          <div className="flex flex-col">
+            <p className="text-xs uppercase tracking-[0.32em] text-[color:var(--color-text-secondary)] leading-tight">LEONTEQ</p>
+            <p className="text-xs uppercase tracking-[0.32em] text-[color:var(--color-text-secondary)] leading-tight">Tech Talk AI</p>
           </div>
         </div>
         <nav className="hidden items-center gap-3 md:flex" aria-label="Primary">
